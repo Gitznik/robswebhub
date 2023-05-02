@@ -1,3 +1,3 @@
 #!/bin/bash
 
-gcloud run deploy robswebhub --source . --update-env-vars=[APP_ENVIRONMENT=production]
+gcloud run deploy --source . --update-env-vars APP_ENVIRONMENT=production --port 8080 robswebhub
