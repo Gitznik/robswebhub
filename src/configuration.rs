@@ -22,7 +22,7 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     match environment {
         Environment::Dev => {}
         Environment::Production => {
-            std::env::set_var("APP_PORT", std::env::var("PORT").unwrap());
+            std::env::set_var("APP_PORT", std::env::var("PORT").expect("Missing environment variable APP_PORT"));
         }
     }
     let environment_filename = format!("{}.yaml", environment.as_str());
