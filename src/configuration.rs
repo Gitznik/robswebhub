@@ -1,15 +1,15 @@
 use serde_aux::field_attributes::deserialize_number_from_string;
 
-#[derive(Clone, serde::Deserialize)]
+#[derive(Clone, serde::Deserialize, Debug)]
 pub struct Settings {
     pub application: ApplicationSettings,
 }
 
-#[derive(Clone, serde::Deserialize)]
+#[derive(Clone, serde::Deserialize, Debug)]
 pub struct ApplicationSettings {
     #[serde(deserialize_with = "deserialize_number_from_string")]
-    pub port: u16,
     pub host: String,
+    pub port: u16,
 }
 
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {
@@ -22,7 +22,7 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     match environment {
         Environment::Dev => {}
         Environment::Production => {
-            std::env::set_var("APP_PORT", std::env::var("PORT").expect("Missing environment variable APP_PORT"));
+            std::env::set_var("APP_APPLICATION__PORT", std::env::var("PORT").expect("Missing environment variable APP_PORT"));
         }
     }
     let environment_filename = format!("{}.yaml", environment.as_str());
