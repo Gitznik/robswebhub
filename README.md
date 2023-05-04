@@ -3,10 +3,10 @@
 My personal website, I plan on adding personal projects here as well as an introduction to myself.
 
 Feel free to visit it [here](https://robswebhub.net)
+
 ## Authors
 
 - [@Robert Offner](https://github.com/Gitznik)
-
 
 ## Badges
 
