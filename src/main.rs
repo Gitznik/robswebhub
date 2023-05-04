@@ -7,8 +7,14 @@ use robswebhub::{
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let config = get_configuration().unwrap();
-    HttpServer::new(|| App::new().service(root).service(about).service(add_scores))
-        .bind((config.application.host, config.application.port))?
-        .run()
-        .await
+    HttpServer::new(|| {
+        App::new()
+            .service(root)
+            .service(about)
+            .service(add_scores)
+    })
+    .bind((config.application.host, config.application.port))?
+    .run()
+    .await
 }
+
