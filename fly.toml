@@ -14,4 +14,4 @@ primary_region = "ams"
 
 [env]
   APP_ENVIRONMENT = "production"
-  PORT = 8080
+  APP_APPLICATION__PORT = 8080

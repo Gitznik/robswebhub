@@ -19,12 +19,6 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
         .unwrap_or_else(|_| "dev".into())
         .try_into()
         .expect("Failed to parse APP_ENVIRONMENT");
-    match environment {
-        Environment::Dev => {}
-        Environment::Production => {
-            std::env::set_var("APP_APPLICATION__PORT", std::env::var("PORT").expect("Missing environment variable APP_PORT"));
-        }
-    }
     let environment_filename = format!("{}.yaml", environment.as_str());
     let settings = config::Config::builder()
         .add_source(config::File::from(
