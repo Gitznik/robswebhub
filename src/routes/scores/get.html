@@ -1,5 +1,20 @@
 <main class="container">
   <h1>Scorekeeper</h1>
-  <p>I'm still working on this</p>
-  <p><a href="/" role="button">Go back</a></p>
+  <form action="/scores" method="post">
+    <div class="grid">
+      <label for="matchup_id">
+        Matchup Id
+        <input type="text" id="matchup_id" name="matchup_id" placeholder="Matchup Id" required>
+      </label>
+      <label for="winner_initials">
+        Winner Credentials
+        <input type="text" id="winner_initials" name="winner_initials" placeholder="Winner Initials" required>
+      </label>
+    </div>
+    <label for="score">
+      Score, separated by :
+      <input type="text" id="score" name="score" placeholder="Score" required>
+    </label>
+    <button type="submit">Submit</button>
+  </form>
 </main>
