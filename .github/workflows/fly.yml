@@ -37,6 +37,6 @@ jobs:
         run: cargo install sqlx-cli --no-default-features --features rustls,postgres
 
       - name: Migrate Database
-        run: sqlx migrate run
+        run: DATABASE_URL=$DATABASE_URL sqlx migrate run
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
