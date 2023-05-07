@@ -3,6 +3,7 @@ use serde_aux::field_attributes::deserialize_number_from_string;
 #[derive(Clone, serde::Deserialize, Debug)]
 pub struct Settings {
     pub application: ApplicationSettings,
+    pub database: DatabaseSettings,
 }
 
 #[derive(Clone, serde::Deserialize, Debug)]
@@ -10,6 +11,11 @@ pub struct ApplicationSettings {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub host: String,
     pub port: u16,
+}
+
+#[derive(Clone, serde::Deserialize, Debug)]
+pub struct DatabaseSettings {
+    pub connection_string: String,
 }
 
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {
@@ -20,6 +26,16 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
         .try_into()
         .expect("Failed to parse APP_ENVIRONMENT");
     let environment_filename = format!("{}.yaml", environment.as_str());
+    match environment {
+        Environment::Dev => {}
+        Environment::Production => {
+            // Transforming default flyctl environment variable for postgres connection string name for config library
+            std::env::set_var(
+                "APP_DATABASE__CONNECTION_STRING",
+                std::env::var("DATABASE_URL").expect("Missing environment variable DATABASE_URL"),
+            );
+        }
+    }
     let settings = config::Config::builder()
         .add_source(config::File::from(
             configuration_directory.join("base.yaml"),
