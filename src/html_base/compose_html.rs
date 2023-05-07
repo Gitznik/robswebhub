@@ -2,7 +2,8 @@ pub fn compose_html(main_div: &str) -> String {
     let header = include_str!("header.html");
     let navbar = include_str!("navbar.html");
     let footer = include_str!("footer.html");
-    let html = format!(r#"
+    let html = format!(
+        r#"
 <!doctype html>
 <html lang="en" data-theme="dark">
 {}
@@ -12,9 +13,11 @@ pub fn compose_html(main_div: &str) -> String {
   </body>
 </html>
 {}
-    "#, header, navbar, main_div, footer);
+    "#,
+        header, navbar, main_div, footer
+    );
     html
-} 
+}
 
 #[cfg(test)]
 mod tests {
@@ -26,5 +29,4 @@ mod tests {
         dbg!(&html);
         assert!(html.contains("favicon"));
     }
-
 }

@@ -1,11 +1,15 @@
+use actix_files::Files;
+use actix_web::cookie::Key;
 use actix_web::{App, HttpServer};
 use actix_web_flash_messages::{storage::CookieMessageStore, FlashMessagesFramework};
 use robswebhub::{
     configuration::get_configuration,
-    routes::{about::get::about, root::get::root, scores::{get::add_scores, post::save_scores}},
+    routes::{
+        about::get::about,
+        root::get::root,
+        scores::{get::add_scores, post::save_scores},
+    },
 };
-use actix_files::Files;
-use actix_web::cookie::Key;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -25,4 +29,3 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
-

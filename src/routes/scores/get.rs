@@ -1,6 +1,6 @@
 use actix_web::{get, HttpResponse, Responder};
-use std::fmt::Write;
 use actix_web_flash_messages::IncomingFlashMessages;
+use std::fmt::Write;
 
 use crate::html_base::compose_html;
 

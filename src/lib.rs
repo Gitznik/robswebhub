@@ -1,3 +1,3 @@
 pub mod configuration;
-pub mod routes;
 pub mod html_base;
+pub mod routes;
