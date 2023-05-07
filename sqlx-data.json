@@ -1,0 +1,51 @@
+{
+  "db": "PostgreSQL",
+  "2134c01e5354918c545d5e368841797a60fdf8bd31561343d6a8efa4fafd3bc4": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Text",
+          "Int2",
+          "Int2"
+        ]
+      }
+    },
+    "query": "\n        INSERT INTO scores (match_id, game_id, winner, winner_score, loser_score, created_at)\n        VALUES ($1, $2, $3, $4, $5, now())\n        "
+  },
+  "862d738cc17b4a8238d947080d6dac9aed3d80592f3f7aa1355e015426462c2c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "player_1",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "player_2",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "\n        select id, player_1, player_2\n        from matches\n        where id = $1\n        "
+  }
+}
