@@ -13,3 +13,16 @@ tokio = { version = "1.28.0", features = ["macros", "rt-multi-thread"] }
 serde-aux = "4"
 actix-files = "0.6.2"
 actix-web-flash-messages = { version = "0.4.2", features = ["cookies"] }
+
+[dependencies.sqlx]
+version = "0.6"
+default-features = false
+features = [
+  "runtime-tokio-rustls",
+  "macros",
+  "postgres",
+  "uuid",
+  "chrono",
+  "migrate",
+  "offline"
+]
