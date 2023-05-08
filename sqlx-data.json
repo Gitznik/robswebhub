@@ -47,5 +47,55 @@
       }
     },
     "query": "\n        select id, player_1, player_2\n        from matches\n        where id = $1\n        "
+  },
+  "8f1efad7c29ea08d4f1caa361d3365ff44b5f0abfbdabc001c23cfc58673d079": {
+    "describe": {
+      "columns": [
+        {
+          "name": "match_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "game_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "winner",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "winner_score",
+          "ordinal": 4,
+          "type_info": "Int2"
+        },
+        {
+          "name": "loser_score",
+          "ordinal": 5,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "\n        select match_id, game_id, winner, created_at, winner_score, loser_score\n        from scores\n        where match_id = $1\n        "
   }
 }
