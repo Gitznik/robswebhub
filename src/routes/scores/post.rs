@@ -7,7 +7,7 @@ use actix_web::{
     HttpResponse, Responder,
 };
 use actix_web_flash_messages::FlashMessage;
-use sqlx::{query, query_as, PgPool};
+use sqlx::{query, query_as, types::chrono::NaiveDate, PgPool};
 use uuid::Uuid;
 
 #[derive(serde::Deserialize)]
@@ -15,6 +15,7 @@ pub struct FormData {
     matchup_id: Uuid,
     winner_initials: String,
     score: String,
+    played_at: String,
 }
 
 #[post("/scores")]
@@ -33,6 +34,7 @@ async fn save_scores(form_data: Form<FormData>, pg_pool: Data<PgPool>) -> impl R
         form_data.matchup_id,
         &form_data.winner_initials,
         form_data.score.clone(),
+        &form_data.played_at,
     )
     .await;
     HttpResponse::SeeOther()
@@ -70,6 +72,7 @@ async fn save_match_score(
     matchup_id: Uuid,
     winner_initials: &str,
     score: String,
+    played_date: &str,
 ) {
     let mut scores = BinaryHeap::from(
         score
@@ -78,16 +81,19 @@ async fn save_match_score(
             .collect::<Vec<i16>>(),
     );
     let game_id = Uuid::new_v4();
+    let parsed_date = NaiveDate::parse_from_str(played_date, "%Y-%m-%d")
+        .unwrap_or_else(|_| panic!("Could not parse date from form: {}", played_date));
     query!(
         r#"
-        INSERT INTO scores (match_id, game_id, winner, winner_score, loser_score, created_at)
-        VALUES ($1, $2, $3, $4, $5, now())
+        INSERT INTO scores (match_id, game_id, winner, winner_score, loser_score, created_at, played_at)
+        VALUES ($1, $2, $3, $4, $5, now(), $6)
         "#,
         matchup_id,
         game_id,
         winner_initials,
         scores.pop(),
-        scores.pop()
+        scores.pop(),
+        parsed_date,
     )
     .execute(pg_pool)
     .await

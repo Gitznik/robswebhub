@@ -1,11 +1,7 @@
 use crate::{html_base::compose_html, routes::scores::post::get_match_information};
 use actix_web::{get, http::header::LOCATION, web, HttpResponse, Responder};
 use actix_web_flash_messages::FlashMessage;
-use sqlx::{
-    query_as,
-    types::chrono::{self, Utc},
-    PgPool,
-};
+use sqlx::{query_as, types::chrono::NaiveDate, PgPool};
 use uuid::Uuid;
 
 #[get("/scores/{match_id}")]
@@ -43,7 +39,7 @@ async fn match_summary(path: web::Path<(Uuid,)>, pg_pool: web::Data<PgPool>) -> 
               <td>{}</td>
             </tr>
         "#,
-                res.winner, res.winner_score, res.loser_score, res.created_at
+                res.winner, res.winner_score, res.loser_score, res.played_at
             )
         })
         .collect();
@@ -59,7 +55,7 @@ async fn match_summary(path: web::Path<(Uuid,)>, pg_pool: web::Data<PgPool>) -> 
               <th scope="col">winner</th>
               <th scope="col">winner_score</th>
               <th scope="col">loser_score</th>
-              <th scope="col">created_at</th>
+              <th scope="col">played_at</th>
             </tr>
           </thead>
           <tbody>
@@ -82,7 +78,7 @@ struct MatchScore {
     match_id: Uuid,
     game_id: Uuid,
     winner: String,
-    created_at: chrono::DateTime<Utc>,
+    played_at: NaiveDate,
     winner_score: i16,
     loser_score: i16,
 }
@@ -94,7 +90,7 @@ async fn get_match_scores(
     query_as!(
         MatchScore,
         r#"
-        select match_id, game_id, winner, created_at, winner_score, loser_score
+        select match_id, game_id, winner, played_at, winner_score, loser_score
         from scores
         where match_id = $1
         "#,

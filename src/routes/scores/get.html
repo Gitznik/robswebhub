@@ -11,10 +11,16 @@
         <input type="text" id="winner_initials" name="winner_initials" placeholder="Winner Initials" required>
       </label>
     </div>
-    <label for="score">
-      Score, separated by :
-      <input type="text" id="score" name="score" placeholder="Score" required>
-    </label>
+    <div class="grid">
+      <label for="score">
+        Score, separated by :
+        <input type="text" id="score" name="score" placeholder="Score" required>
+      </label>
+      <label for="played_at">
+        Date the match was played at
+        <input type="date" id="played_at" name="played_at" placeholder="dd.mm.yyyy" required>
+      </label>
+    </div>
     <button type="submit">Submit</button>
   </form>
 </main>
