@@ -42,13 +42,13 @@ async fn save_scores(form_data: Form<FormData>, pg_pool: Data<PgPool>) -> impl R
 
 #[derive(Debug)]
 #[allow(dead_code)]
-struct MatchInfo {
+pub struct MatchInfo {
     id: Uuid,
     player_1: String,
     player_2: String,
 }
 
-async fn get_match_information(
+pub async fn get_match_information(
     matchup_id: Uuid,
     pg_pool: &PgPool,
 ) -> Result<MatchInfo, sqlx::Error> {

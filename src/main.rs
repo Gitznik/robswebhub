@@ -3,6 +3,7 @@ use actix_web::cookie::Key;
 use actix_web::{web, App, HttpServer};
 use actix_web_flash_messages::{storage::CookieMessageStore, FlashMessagesFramework};
 use robswebhub::configuration::DatabaseSettings;
+use robswebhub::routes::scores::matches::get::match_summary;
 use robswebhub::{
     configuration::get_configuration,
     routes::{
@@ -36,6 +37,7 @@ async fn main() -> std::io::Result<()> {
             .service(add_scores)
             .service(save_scores)
             .service(Files::new("/images", "./images"))
+            .service(match_summary)
             .app_data(pg_pool.clone())
     })
     .bind((
