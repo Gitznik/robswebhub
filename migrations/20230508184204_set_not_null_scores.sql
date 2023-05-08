@@ -1,0 +1,2 @@
+ALTER TABLE scores ALTER COLUMN winner_score SET NOT NULL;
+ALTER TABLE scores ALTER COLUMN loser_score SET NOT NULL;
