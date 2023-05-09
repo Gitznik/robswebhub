@@ -118,6 +118,7 @@ async fn get_match_scores(
         select match_id, game_id, winner, played_at, winner_score, loser_score
         from scores
         where match_id = $1
+        order by played_at desc
         "#,
         matchup_id
     )
