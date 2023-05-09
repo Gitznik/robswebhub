@@ -47,7 +47,31 @@ async fn match_summary(path: web::Path<(Uuid,)>, pg_pool: web::Data<PgPool>) -> 
     let html = format!(
         r#"
       <main class="container">
-        <h1>Match Scores for Match {}</h1>
+        <h1>Match Scores for Match</h1>
+        <h2>{}</h2>
+        <form action="/scores" method="post">
+          <div class="grid">
+            <label for="matchup_id">
+              Matchup Id
+              <input type="text" id="matchup_id" name="matchup_id" placeholder="Matchup Id" value="{}" required>
+            </label>
+            <label for="winner_initials">
+              Winner Credentials
+              <input type="text" id="winner_initials" name="winner_initials" placeholder="Winner Initials" required>
+            </label>
+          </div>
+          <div class="grid">
+            <label for="score">
+              Score, separated by :
+              <input type="text" id="score" name="score" placeholder="Score" required>
+            </label>
+            <label for="played_at">
+              Date the match was played at
+              <input type="date" id="played_at" name="played_at" placeholder="dd.mm.yyyy" required>
+            </label>
+          </div>
+          <button type="submit">Submit</button>
+        </form>
         <table role="grid">
           <thead>
             <tr>
@@ -64,6 +88,7 @@ async fn match_summary(path: web::Path<(Uuid,)>, pg_pool: web::Data<PgPool>) -> 
         </table>
       </main>
     "#,
+        match_id,
         match_id,
         match_rows.join("\n")
     );
