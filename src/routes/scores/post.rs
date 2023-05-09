@@ -38,7 +38,7 @@ async fn save_scores(form_data: Form<FormData>, pg_pool: Data<PgPool>) -> impl R
     )
     .await;
     HttpResponse::SeeOther()
-        .insert_header((LOCATION, "/scores"))
+        .insert_header((LOCATION, format!("/scores/{}", form_data.matchup_id)))
         .finish()
 }
 
