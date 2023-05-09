@@ -1,55 +1,5 @@
 {
   "db": "PostgreSQL",
-  "7d6b1878b656f51c3e4538f9921cb04b346a46edab681ebe87009078ab3a0b1a": {
-    "describe": {
-      "columns": [
-        {
-          "name": "match_id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "game_id",
-          "ordinal": 1,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "winner",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "played_at",
-          "ordinal": 3,
-          "type_info": "Date"
-        },
-        {
-          "name": "winner_score",
-          "ordinal": 4,
-          "type_info": "Int2"
-        },
-        {
-          "name": "loser_score",
-          "ordinal": 5,
-          "type_info": "Int2"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid"
-        ]
-      }
-    },
-    "query": "\n        select match_id, game_id, winner, played_at, winner_score, loser_score\n        from scores\n        where match_id = $1\n        "
-  },
   "862d738cc17b4a8238d947080d6dac9aed3d80592f3f7aa1355e015426462c2c": {
     "describe": {
       "columns": [
@@ -98,5 +48,55 @@
       }
     },
     "query": "\n        INSERT INTO scores (match_id, game_id, winner, winner_score, loser_score, created_at, played_at)\n        VALUES ($1, $2, $3, $4, $5, now(), $6)\n        "
+  },
+  "fa56576f5c3702155854b85a1abf7441e525c85bcc0f334f60ab1935ec3d2c7f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "match_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "game_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "winner",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "played_at",
+          "ordinal": 3,
+          "type_info": "Date"
+        },
+        {
+          "name": "winner_score",
+          "ordinal": 4,
+          "type_info": "Int2"
+        },
+        {
+          "name": "loser_score",
+          "ordinal": 5,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "\n        select match_id, game_id, winner, played_at, winner_score, loser_score\n        from scores\n        where match_id = $1\n        order by played_at desc\n        "
   }
 }
