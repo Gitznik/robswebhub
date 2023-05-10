@@ -1494,6 +1494,7 @@ dependencies = [
  "actix-files",
  "actix-web",
  "actix-web-flash-messages",
+ "anyhow",
  "config",
  "serde",
  "serde-aux",

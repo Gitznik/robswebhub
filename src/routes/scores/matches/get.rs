@@ -111,8 +111,8 @@ struct MatchScore {
 async fn get_match_scores(
     matchup_id: Uuid,
     pg_pool: &PgPool,
-) -> Result<Vec<MatchScore>, sqlx::Error> {
-    query_as!(
+) -> Result<Vec<MatchScore>, anyhow::Error> {
+    let scores = query_as!(
         MatchScore,
         r#"
         select match_id, game_id, winner, played_at, winner_score, loser_score
@@ -123,5 +123,6 @@ async fn get_match_scores(
         matchup_id
     )
     .fetch_all(pg_pool)
-    .await
+    .await?;
+    Ok(scores)
 }

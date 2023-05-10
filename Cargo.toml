@@ -14,6 +14,7 @@ serde-aux = "4"
 actix-files = "0.6.2"
 actix-web-flash-messages = { version = "0.4.2", features = ["cookies"] }
 uuid = { version = "1.3.2", features = ["serde", "v4"] }
+anyhow = "1.0.71"
 
 [dependencies.sqlx]
 version = "0.6"
