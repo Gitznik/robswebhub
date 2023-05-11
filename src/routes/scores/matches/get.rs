@@ -1,6 +1,8 @@
-use crate::{html_base::compose_html, routes::scores::post::get_match_information};
-use actix_web::{get, http::header::LOCATION, web, HttpResponse, Responder};
-use actix_web_flash_messages::FlashMessage;
+use crate::{
+    html_base::compose_html,
+    routes::{routing_utils::see_other, scores::post::get_match_information},
+};
+use actix_web::{get, web, HttpResponse, Responder};
 use sqlx::{query_as, types::chrono::NaiveDate, PgPool};
 use uuid::Uuid;
 
@@ -10,19 +12,13 @@ async fn match_summary(path: web::Path<(Uuid,)>, pg_pool: web::Data<PgPool>) -> 
     match get_match_information(match_id, &pg_pool).await {
         Ok(res) => res,
         Err(e) => {
-            FlashMessage::info(e.to_string()).send();
-            return HttpResponse::SeeOther()
-                .insert_header((LOCATION, "/scores"))
-                .finish();
+            return see_other("/scores", Some(e));
         }
     };
     let match_scores = match get_match_scores(match_id, &pg_pool).await {
         Ok(res) => res,
         Err(e) => {
-            FlashMessage::info(e.to_string()).send();
-            return HttpResponse::SeeOther()
-                .insert_header((LOCATION, "/scores"))
-                .finish();
+            return see_other("/scores", Some(e));
         }
     };
 

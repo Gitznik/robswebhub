@@ -1,14 +1,14 @@
 use std::collections::BinaryHeap;
 
 use actix_web::{
-    http::header::LOCATION,
     post,
     web::{Data, Form},
-    HttpResponse, Responder,
+    Responder,
 };
-use actix_web_flash_messages::FlashMessage;
 use sqlx::{query, query_as, types::chrono::NaiveDate, PgPool};
 use uuid::Uuid;
+
+use crate::routes::routing_utils::see_other;
 
 #[derive(serde::Deserialize)]
 pub struct FormData {
@@ -23,10 +23,7 @@ async fn save_scores(form_data: Form<FormData>, pg_pool: Data<PgPool>) -> impl R
     match get_match_information(form_data.matchup_id, &pg_pool).await {
         Ok(res) => res,
         Err(e) => {
-            FlashMessage::info(e.to_string()).send();
-            return HttpResponse::SeeOther()
-                .insert_header((LOCATION, "/scores"))
-                .finish();
+            return see_other("/scores", Some(e));
         }
     };
     match save_match_score(
@@ -38,15 +35,8 @@ async fn save_scores(form_data: Form<FormData>, pg_pool: Data<PgPool>) -> impl R
     )
     .await
     {
-        Ok(_) => HttpResponse::SeeOther()
-            .insert_header((LOCATION, format!("/scores/{}", form_data.matchup_id)))
-            .finish(),
-        Err(e) => {
-            FlashMessage::info(e.to_string()).send();
-            return HttpResponse::SeeOther()
-                .insert_header((LOCATION, "/scores"))
-                .finish();
-        }
+        Ok(_) => see_other(&format!("/scores/{}", form_data.matchup_id), None),
+        Err(e) => see_other("/scores", Some(e)),
     }
 }
 
