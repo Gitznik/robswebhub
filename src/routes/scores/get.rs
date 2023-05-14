@@ -1,9 +1,11 @@
-use crate::routes::{routing_utils::see_other, scores::post::get_match_information};
+use crate::routes::{
+    flash_messages_utils::flash_messages_section, routing_utils::see_other,
+    scores::post::get_match_information,
+};
 use actix_web::{get, web, HttpResponse, Responder};
 use actix_web_flash_messages::IncomingFlashMessages;
 use serde::Deserialize;
 use sqlx::{query_as, types::chrono::NaiveDate, PgPool};
-use std::fmt::Write;
 use uuid::Uuid;
 
 use crate::html_base::compose_html;
@@ -19,26 +21,9 @@ async fn add_scores(
     pg_pool: web::Data<PgPool>,
     flash_messages: IncomingFlashMessages,
 ) -> impl Responder {
-    let mut error_html = String::new();
-    match writeln!(error_html, r#"<section class="container">"#) {
-        Ok(_) => {}
-        Err(e) => {
-            return HttpResponse::InternalServerError().body(format!("{}", e));
-        }
-    }
-    for m in flash_messages.iter() {
-        match writeln!(error_html, r#"<p><i><mark>{}</mark></i></p>"#, m.content()) {
-            Ok(_) => {}
-            Err(e) => {
-                return HttpResponse::InternalServerError().body(format!("{}", e));
-            }
-        };
-    }
-    match writeln!(error_html, r#"</section>"#) {
-        Ok(_) => {}
-        Err(e) => {
-            return HttpResponse::InternalServerError().body(format!("{}", e));
-        }
+    let error_html = match flash_messages_section(flash_messages) {
+        Ok(html) => html,
+        Err(e) => return HttpResponse::InternalServerError().body(format!("{}", e)),
     };
     let scores = match query.matchup_id {
         Some(matchup_id) => match match_summary(matchup_id, &pg_pool).await {
