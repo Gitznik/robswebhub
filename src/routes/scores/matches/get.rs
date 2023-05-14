@@ -10,7 +10,7 @@ use uuid::Uuid;
 async fn match_summary(path: web::Path<(Uuid,)>, pg_pool: web::Data<PgPool>) -> impl Responder {
     let match_id = path.into_inner().0;
     match get_match_information(match_id, &pg_pool).await {
-        Ok(res) => res,
+        Ok(_) => {}
         Err(e) => {
             return see_other("/scores", Some(e));
         }

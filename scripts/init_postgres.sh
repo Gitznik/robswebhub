@@ -56,8 +56,11 @@ done
 
 >&2 echo "Postgres is up and running on port ${DB_PORT} - running migrations now!"
 
-export DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+export DATABASE_URL="postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
 sqlx database create
 sqlx migrate run
+
+psql $DATABASE_URL -c "INSERT INTO matches(id, player_1, player_2, created_at) VALUES ('b13a16d8-c46e-4921-83f2-eec9675fce74', 'P1', 'P2', now());"
+psql $DATABASE_URL -c "INSERT INTO scores(match_id, game_id, winner, created_at, winner_score, loser_score, played_at) VALUES ('b13a16d8-c46e-4921-83f2-eec9675fce74', 'b13a16d8-c46e-4921-83f2-eec9675fce74', 'P1', now(), 2, 1, now());"
 
 >&2 echo "Postgres has been migrated, ready to go!"
