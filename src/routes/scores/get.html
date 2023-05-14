@@ -1,5 +1,17 @@
-<main class="container">
-  <h1>Scorekeeper</h1>
+<h1>Scorekeeper</h1>
+<h2>Go to Match</h2>
+<div>
+  <form action="/scores" method="get">
+    <div class="grid">
+      <label for="matchup_id">
+        Matchup Id
+        <input type="text" id="matchup_id" name="matchup_id" placeholder="Matchup Id" required>
+      </label>
+    <button type="submit">Go to Match</button>
+  </form>
+</div>
+<div>
+  <h2>Add Score</h2>
   <form action="/scores" method="post">
     <div class="grid">
       <label for="matchup_id">
@@ -23,4 +35,4 @@
     </div>
     <button type="submit">Submit</button>
   </form>
-</main>
+</div>
