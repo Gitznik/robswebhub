@@ -32,10 +32,11 @@ async fn add_scores(
         },
         None => "".to_owned(),
     };
+    let insert_score_form = insert_score_form(query.matchup_id);
     let main_div = include_str!("get.html");
     let main_div = format!(
-        "{}\n<main class=\"container\">{}{}</main>",
-        &error_html, &main_div, &scores
+        "{}\n<main class=\"container\">{}{}{}</main>",
+        &error_html, &main_div, &insert_score_form, &scores
     );
     let html = compose_html(&main_div);
     HttpResponse::Ok().body(html)
@@ -115,4 +116,42 @@ async fn get_match_scores(
     .fetch_all(pg_pool)
     .await?;
     Ok(scores)
+}
+
+fn insert_score_form(matchup_id: Option<Uuid>) -> String {
+    let default_matchup = match matchup_id {
+        Some(matchup_id) => format!("value={}", matchup_id),
+        None => "".to_owned(),
+    };
+    format!(
+        r#"
+        <div>
+          <h2>Add Score</h2>
+          <form action="/scores" method="post">
+            <div class="grid">
+              <label for="matchup_id">
+                Matchup Id
+                <input type="text" id="matchup_id" name="matchup_id" placeholder="Matchup Id" {} required>
+              </label>
+              <label for="winner_initials">
+                Winner Credentials
+                <input type="text" id="winner_initials" name="winner_initials" placeholder="Winner Initials" required>
+              </label>
+            </div>
+            <div class="grid">
+              <label for="score">
+                Score, separated by :
+                <input type="text" id="score" name="score" placeholder="Score" required>
+              </label>
+              <label for="played_at">
+                Date the match was played at
+                <input type="date" id="played_at" name="played_at" placeholder="dd.mm.yyyy" required>
+              </label>
+            </div>
+            <button type="submit">Submit</button>
+          </form>
+        </div>
+    "#,
+        default_matchup
+    )
 }
