@@ -1,4 +1,4 @@
-use std::collections::BinaryHeap;
+use std::collections::{BinaryHeap, HashSet};
 
 use actix_web::{
     post,
@@ -20,23 +20,30 @@ pub struct FormData {
 
 #[post("/scores")]
 async fn save_scores(form_data: Form<FormData>, pg_pool: Data<PgPool>) -> impl Responder {
-    match get_match_information(form_data.matchup_id, &pg_pool).await {
+    let match_info = match get_match_information(form_data.matchup_id, &pg_pool).await {
         Ok(res) => res,
         Err(e) => {
             return see_other("/scores", Some(e));
         }
     };
-    match save_match_score(
-        &pg_pool,
-        form_data.matchup_id,
-        &form_data.winner_initials,
-        form_data.score.clone(),
-        &form_data.played_at,
-    )
-    .await
-    {
-        Ok(_) => see_other(&format!("/scores/{}", form_data.matchup_id), None),
-        Err(e) => see_other("/scores", Some(e)),
+    if match_info.player_in_match(&form_data.winner_initials) {
+        match save_match_score(
+            &pg_pool,
+            form_data.matchup_id,
+            &form_data.winner_initials,
+            form_data.score.clone(),
+            &form_data.played_at,
+        )
+        .await
+        {
+            Ok(_) => see_other(&format!("/scores?matchup_id={}", form_data.matchup_id), None),
+            Err(e) => see_other("/scores", Some(e)),
+        }
+    } else {
+        see_other(
+            &format!("/scores?matchup_id={}", form_data.matchup_id),
+            Some(anyhow::anyhow!("Player not found in this match")),
+        )
     }
 }
 
@@ -46,6 +53,13 @@ pub struct MatchInfo {
     id: Uuid,
     player_1: String,
     player_2: String,
+}
+
+impl MatchInfo {
+    fn player_in_match(&self, player: &String) -> bool {
+        let players_in_match = HashSet::from([&self.player_1, &self.player_2]);
+        players_in_match.contains(&player)
+    }
 }
 
 pub async fn get_match_information(
