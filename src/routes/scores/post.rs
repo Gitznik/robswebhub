@@ -36,7 +36,10 @@ async fn save_scores(form_data: Form<FormData>, pg_pool: Data<PgPool>) -> impl R
         )
         .await
         {
-            Ok(_) => see_other(&format!("/scores?matchup_id={}", form_data.matchup_id), None),
+            Ok(_) => see_other(
+                &format!("/scores?matchup_id={}", form_data.matchup_id),
+                None,
+            ),
             Err(e) => see_other("/scores", Some(e)),
         }
     } else {
