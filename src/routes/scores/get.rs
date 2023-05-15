@@ -42,8 +42,8 @@ async fn add_scores(
 }
 
 async fn match_summary(match_id: Uuid, pg_pool: &PgPool) -> Result<String, anyhow::Error> {
-    get_match_information(match_id, &pg_pool).await?;
-    let match_scores = get_match_scores(match_id, &pg_pool).await?;
+    get_match_information(match_id, pg_pool).await?;
+    let match_scores = get_match_scores(match_id, pg_pool).await?;
     let match_rows: Vec<String> = match_scores
         .into_iter()
         .map(|res| {
