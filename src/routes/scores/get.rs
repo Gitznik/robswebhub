@@ -129,8 +129,11 @@ fn insert_score_form(matchup_id: Option<Uuid>) -> String {
           <h2>Add Score</h2>
           <div class="grid">
             <div>
-              <h3>Single Result</h3>
-              <form action="/scores" method="post">
+              <div class="grid">
+                <h3>Single Result</h3>
+                <button type="submit" form="single_result">Submit</button>
+              </div>
+              <form id="single_result" action="/scores" method="post">
                 <div class="grid">
                   <label for="matchup_id">
                     Matchup Id
@@ -143,7 +146,7 @@ fn insert_score_form(matchup_id: Option<Uuid>) -> String {
                 </div>
                 <div class="grid">
                   <label for="score">
-                    Score, separated by :
+                    Score, separated by ":"
                     <input type="text" id="score" name="score" placeholder="Score" required>
                   </label>
                   <label for="played_at">
@@ -151,12 +154,14 @@ fn insert_score_form(matchup_id: Option<Uuid>) -> String {
                     <input type="date" id="played_at" name="played_at" placeholder="dd.mm.yyyy" required>
                   </label>
                 </div>
-                <button type="submit">Submit</button>
               </form>
             </div>
             <div>
-              <h3>Batch Upload</h3>
-              <form action="/scores_batch" method="post">
+              <div class="grid">
+                <h3>Batch Upload</h3>
+                <button type="submit">Submit</button>
+              </div>
+              <form id="batch_upload" action="/scores_batch" method="post">
                 <div class="grid">
                   <label for="matchup_id">
                     Matchup Id
@@ -164,10 +169,9 @@ fn insert_score_form(matchup_id: Option<Uuid>) -> String {
                   </label>
                   <label for="raw_matches_list">
                     Raw matches list
-                    <input type="text" id="raw_matches_list" name="raw_matches_list" placeholder="Raw matches list, e.g. 20-2-2023 P1 2:1" required>
+                    <textarea id="raw_matches_list" name="raw_matches_list" placeholder="Raw matches list, e.g. 20-02-2023 P1 2:1" rows="5" required></textarea>
                   </label>
                 </div>
-                <button type="submit">Submit</button>
               </form>
             </div>
           </div>
