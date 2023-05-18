@@ -159,7 +159,7 @@ fn insert_score_form(matchup_id: Option<Uuid>) -> String {
             <div>
               <div class="grid">
                 <h3>Batch Upload</h3>
-                <button type="submit">Submit</button>
+                <button type="submit" form="batch_upload">Submit</button>
               </div>
               <form id="batch_upload" action="/scores_batch" method="post">
                 <div class="grid">
