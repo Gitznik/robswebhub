@@ -3,6 +3,7 @@ use actix_web::{
     web::{Data, Form},
     Responder,
 };
+use anyhow::Context;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -32,23 +33,13 @@ pub async fn save_scores_batch(form_data: Form<FormData>, pg_pool: Data<PgPool>)
     )
 }
 
-fn parse_match_scores(matchup_id: Uuid, raw_match_scores: &str) -> Vec<MatchScoreForm> {
+fn parse_match_scores(matchup_id: Uuid, raw_match_scores: &str) -> Result<Vec<MatchScoreForm>, anyhow::Error> {
     let elements: Vec<&str> = raw_match_scores.split("\n").collect();
     let mut parsed_elements = Vec::new();
     for element in elements {
-        parsed_elements.push(parse_map_score(matchup_id, element));
+        parsed_elements.push(MatchScoreForm::new(matchup_id, element).context("Failed to parse match score")?);
     }
-    parsed_elements
-}
-
-fn parse_map_score(matchup_id: Uuid, raw_match_score: &str) -> MatchScoreForm {
-    let elements: Vec<&str> = raw_match_score.split(' ').collect();
-    MatchScoreForm {
-        matchup_id,
-        played_at: elements[0].to_owned(),
-        winner_initials: elements[1].to_owned(),
-        score: elements[2].to_owned(),
-    }
+    Ok(parsed_elements)
 }
 
 #[cfg(test)]
@@ -59,7 +50,7 @@ mod tests {
     fn parsing_single_score_works() {
         let raw_match_scores = r#"2022-02-22 P1 16:1"#;
         let matchup_id = Uuid::new_v4();
-        let res = parse_match_scores(matchup_id, raw_match_scores);
+        let res = parse_match_scores(matchup_id, raw_match_scores).unwrap();
         assert!(res[0].matchup_id == matchup_id);
     }
 
@@ -67,7 +58,7 @@ mod tests {
     fn parsing_multiple_scores_works() {
         let raw_match_scores = "2022-02-22 P1 16:1\n2022-02-22 P1 16:1";
         let matchup_id = Uuid::new_v4();
-        let res = parse_match_scores(matchup_id, raw_match_scores);
+        let res = parse_match_scores(matchup_id, raw_match_scores).unwrap();
         assert!(res[0].matchup_id == matchup_id);
         assert!(res[1].matchup_id == matchup_id);
     }
