@@ -17,26 +17,3 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-
-  migrate_db:
-    name: Migrate Postgres
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
-      - name: Install sqlx
-        run: cargo install sqlx-cli --no-default-features --features rustls,postgres
-
-      - name: Migrate Database
-        run: DATABASE_URL=$DATABASE_URL sqlx migrate run
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
