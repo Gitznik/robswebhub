@@ -4,13 +4,16 @@ use actix_web::{
     Responder,
 };
 use anyhow::Context;
-use sqlx::PgPool;
+use sqlx::{
+    types::chrono::{NaiveDate, NaiveDateTime, Utc},
+    PgPool,
+};
 use uuid::Uuid;
 
 use crate::routes::routing_utils::see_other;
 use crate::routes::scores::post::get_match_information;
 
-use super::post::{save_match_score, MatchScoreInput};
+use super::post::MatchScoreInput;
 
 #[derive(serde::Deserialize)]
 pub struct FormData {
@@ -36,27 +39,42 @@ pub async fn save_scores_batch(form_data: Form<FormData>, pg_pool: Data<PgPool>)
             )
         }
     };
-    let e = save_scores(&pg_pool, form_data.matchup_id, match_scores)
-        .await
-        .err();
+    let e = save_scores(&pg_pool, match_scores).await.err();
     see_other(&format!("/scores?matchup_id={}", form_data.matchup_id), e)
 }
 
 pub async fn save_scores(
     pg_pool: &PgPool,
-    matchup_id: Uuid,
     scores: Vec<MatchScoreInput>,
 ) -> Result<(), anyhow::Error> {
-    for score in scores {
-        save_match_score(
-            pg_pool,
-            matchup_id,
-            &score.winner_initials,
-            score.score,
-            score.played_at,
-        )
-        .await?;
-    }
+    let mut matchup_ids: Vec<Uuid> = Vec::with_capacity(scores.len());
+    let mut winner_initials: Vec<String> = Vec::with_capacity(scores.len());
+    let mut winner_scores: Vec<i16> = Vec::with_capacity(scores.len());
+    let mut loser_scores: Vec<i16> = Vec::with_capacity(scores.len());
+    let mut played_at: Vec<NaiveDate> = Vec::with_capacity(scores.len());
+    let mut created_at: Vec<NaiveDateTime> = Vec::with_capacity(scores.len());
+    let mut game_ids: Vec<Uuid> = Vec::with_capacity(scores.len());
+    scores.into_iter().for_each(|row| {
+        matchup_ids.push(row.matchup_id);
+        winner_initials.push(row.winner_initials);
+        winner_scores.push(row.score.winner_score);
+        loser_scores.push(row.score.loser_score);
+        played_at.push(row.played_at);
+        created_at.push(Utc::now().naive_utc());
+        game_ids.push(Uuid::new_v4());
+    });
+    sqlx::query(r#"
+        INSERT INTO scores (match_id, game_id, winner, winner_score, loser_score, created_at, played_at)
+        SELECT * FROM UNNEST ($1,$2,$3,$4,$5,$6,$7)"#)
+    .bind(matchup_ids)
+    .bind(game_ids)
+    .bind(winner_initials)
+    .bind(winner_scores)
+    .bind(loser_scores)
+    .bind(created_at)
+    .bind(played_at)
+    .execute(pg_pool)
+    .await?;
     Ok(())
 }
 
