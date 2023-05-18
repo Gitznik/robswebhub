@@ -25,9 +25,11 @@ pub struct MatchScoreForm {
 impl MatchScoreForm {
     pub fn new(matchup_id: Uuid, raw_score: &str) -> Result<Self, anyhow::Error> {
         let elements: Vec<&str> = raw_score.split(' ').collect();
-        let played_at = Self::parse_played_at(elements[0].to_owned()).context("Failed to parse the played_at date")?;
+        let played_at = Self::parse_played_at(elements[0].to_owned())
+            .context("Failed to parse the played_at date")?;
         let winner_initials = elements[1].to_owned();
-        let score = Self::parse_score(elements[2].to_owned()).context("Failed to parse the score")?;
+        let score =
+            Self::parse_score(elements[2].to_owned()).context("Failed to parse the score")?;
         Ok(MatchScoreForm {
             matchup_id,
             played_at,
@@ -117,7 +119,7 @@ pub async fn get_match_information(
     Ok(match_info)
 }
 
-async fn save_match_score(
+pub async fn save_match_score(
     pg_pool: &PgPool,
     matchup_id: Uuid,
     winner_initials: &str,

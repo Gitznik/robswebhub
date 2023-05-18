@@ -10,7 +10,7 @@ use uuid::Uuid;
 use crate::routes::routing_utils::see_other;
 use crate::routes::scores::post::get_match_information;
 
-use super::post::MatchScoreForm;
+use super::post::{save_match_score, MatchScoreForm};
 
 #[derive(serde::Deserialize)]
 pub struct FormData {
@@ -27,17 +27,48 @@ pub async fn save_scores_batch(form_data: Form<FormData>, pg_pool: Data<PgPool>)
         }
     };
     dbg!(&form_data.raw_matches_list);
-    see_other(
-        &format!("/scores?matchup_id={}", form_data.matchup_id),
-        Some(anyhow::anyhow!("Saving batches not yet implemented")),
-    )
+    let match_scores = match parse_match_scores(form_data.matchup_id, &form_data.raw_matches_list) {
+        Ok(res) => res,
+        Err(e) => {
+            return see_other(
+                &format!("/scores?matchup_id={}", form_data.matchup_id),
+                Some(e),
+            )
+        }
+    };
+    let e = save_scores(&pg_pool, form_data.matchup_id, match_scores)
+        .await
+        .err();
+    see_other(&format!("/scores?matchup_id={}", form_data.matchup_id), e)
 }
 
-fn parse_match_scores(matchup_id: Uuid, raw_match_scores: &str) -> Result<Vec<MatchScoreForm>, anyhow::Error> {
-    let elements: Vec<&str> = raw_match_scores.split("\n").collect();
+pub async fn save_scores(
+    pg_pool: &PgPool,
+    matchup_id: Uuid,
+    scores: Vec<MatchScoreForm>,
+) -> Result<(), anyhow::Error> {
+    for score in scores {
+        save_match_score(
+            pg_pool,
+            matchup_id,
+            &score.winner_initials,
+            score.score,
+            &score.played_at,
+        )
+        .await?;
+    }
+    Ok(())
+}
+
+fn parse_match_scores(
+    matchup_id: Uuid,
+    raw_match_scores: &str,
+) -> Result<Vec<MatchScoreForm>, anyhow::Error> {
+    let elements: Vec<&str> = raw_match_scores.split("\r\n").collect();
     let mut parsed_elements = Vec::new();
     for element in elements {
-        parsed_elements.push(MatchScoreForm::new(matchup_id, element).context("Failed to parse match score")?);
+        parsed_elements
+            .push(MatchScoreForm::new(matchup_id, element).context("Failed to parse match score")?);
     }
     Ok(parsed_elements)
 }
