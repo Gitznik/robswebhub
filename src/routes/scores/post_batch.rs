@@ -10,7 +10,7 @@ use uuid::Uuid;
 use crate::routes::routing_utils::see_other;
 use crate::routes::scores::post::get_match_information;
 
-use super::post::{save_match_score, MatchScoreForm};
+use super::post::{save_match_score, MatchScoreInput};
 
 #[derive(serde::Deserialize)]
 pub struct FormData {
@@ -45,7 +45,7 @@ pub async fn save_scores_batch(form_data: Form<FormData>, pg_pool: Data<PgPool>)
 pub async fn save_scores(
     pg_pool: &PgPool,
     matchup_id: Uuid,
-    scores: Vec<MatchScoreForm>,
+    scores: Vec<MatchScoreInput>,
 ) -> Result<(), anyhow::Error> {
     for score in scores {
         save_match_score(
@@ -53,7 +53,7 @@ pub async fn save_scores(
             matchup_id,
             &score.winner_initials,
             score.score,
-            &score.played_at,
+            score.played_at,
         )
         .await?;
     }
@@ -63,12 +63,14 @@ pub async fn save_scores(
 fn parse_match_scores(
     matchup_id: Uuid,
     raw_match_scores: &str,
-) -> Result<Vec<MatchScoreForm>, anyhow::Error> {
+) -> Result<Vec<MatchScoreInput>, anyhow::Error> {
     let elements: Vec<&str> = raw_match_scores.split("\r\n").collect();
     let mut parsed_elements = Vec::new();
     for element in elements {
-        parsed_elements
-            .push(MatchScoreForm::new(matchup_id, element).context("Failed to parse match score")?);
+        parsed_elements.push(
+            MatchScoreInput::new_from_str(matchup_id, element)
+                .context("Failed to parse match score")?,
+        );
     }
     Ok(parsed_elements)
 }
@@ -87,7 +89,7 @@ mod tests {
 
     #[test]
     fn parsing_multiple_scores_works() {
-        let raw_match_scores = "2022-02-22 P1 16:1\n2022-02-22 P1 16:1";
+        let raw_match_scores = "2022-02-22 P1 16:1\r\n2022-02-22 P1 16:1";
         let matchup_id = Uuid::new_v4();
         let res = parse_match_scores(matchup_id, raw_match_scores).unwrap();
         assert!(res[0].matchup_id == matchup_id);

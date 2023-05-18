@@ -14,23 +14,27 @@ use uuid::Uuid;
 
 use crate::routes::routing_utils::see_other;
 
-#[derive(serde::Deserialize, Debug)]
-pub struct MatchScoreForm {
-    pub matchup_id: Uuid,
-    pub winner_initials: String,
-    pub score: String,
-    pub played_at: String,
+pub struct Score {
+    pub winner_score: i16,
+    pub loser_score: i16,
 }
 
-impl MatchScoreForm {
-    pub fn new(matchup_id: Uuid, raw_score: &str) -> Result<Self, anyhow::Error> {
-        let elements: Vec<&str> = raw_score.split(' ').collect();
-        let played_at = Self::parse_played_at(elements[0].to_owned())
+pub struct MatchScoreInput {
+    pub matchup_id: Uuid,
+    pub winner_initials: String,
+    pub score: Score,
+    pub played_at: NaiveDate,
+}
+
+impl MatchScoreInput {
+    pub fn new_from_form(score_form: &MatchScoreForm) -> Result<Self, anyhow::Error> {
+        let played_at = Self::parse_played_at(score_form.played_at.to_owned())
             .context("Failed to parse the played_at date")?;
-        let winner_initials = elements[1].to_owned();
+        let winner_initials = score_form.winner_initials.to_owned();
+        let matchup_id = score_form.matchup_id;
         let score =
-            Self::parse_score(elements[2].to_owned()).context("Failed to parse the score")?;
-        Ok(MatchScoreForm {
+            Self::parse_score(score_form.score.to_owned()).context("Failed to parse the score")?;
+        Ok(Self {
             matchup_id,
             played_at,
             winner_initials,
@@ -38,20 +42,45 @@ impl MatchScoreForm {
         })
     }
 
-    fn parse_played_at(raw_played_at: String) -> Result<String, anyhow::Error> {
-        NaiveDate::parse_from_str(&raw_played_at, "%Y-%m-%d")?;
-        Ok(raw_played_at)
+    pub fn new_from_str(matchup_id: Uuid, raw_score: &str) -> Result<Self, anyhow::Error> {
+        let elements: Vec<&str> = raw_score.split(' ').collect();
+        let played_at = Self::parse_played_at(elements[0].to_owned())
+            .context("Failed to parse the played_at date")?;
+        let winner_initials = elements[1].to_owned();
+        let score =
+            Self::parse_score(elements[2].to_owned()).context("Failed to parse the score")?;
+        Ok(Self {
+            matchup_id,
+            played_at,
+            winner_initials,
+            score,
+        })
     }
 
-    fn parse_score(raw_score: String) -> Result<String, anyhow::Error> {
+    fn parse_played_at(raw_played_at: String) -> Result<NaiveDate, anyhow::Error> {
+        Ok(NaiveDate::parse_from_str(&raw_played_at, "%Y-%m-%d")?)
+    }
+
+    fn parse_score(raw_score: String) -> Result<Score, anyhow::Error> {
         let parsed_scores: Result<Vec<i16>, ParseIntError> =
             raw_score.split(':').map(|s| s.parse::<i16>()).collect();
-        let scores = BinaryHeap::from(parsed_scores?);
+        let mut scores = BinaryHeap::from(parsed_scores?);
         if scores.len() != 2 {
             return Err(anyhow!("Score length does not match. Expected 2"));
         }
-        Ok(raw_score)
+        Ok(Score {
+            winner_score: scores.pop().unwrap(),
+            loser_score: scores.pop().unwrap(),
+        })
     }
+}
+
+#[derive(serde::Deserialize, Debug)]
+pub struct MatchScoreForm {
+    pub matchup_id: Uuid,
+    pub winner_initials: String,
+    pub score: String,
+    pub played_at: String,
 }
 
 #[post("/scores")]
@@ -62,13 +91,22 @@ async fn save_scores(form_data: Form<MatchScoreForm>, pg_pool: Data<PgPool>) -> 
             return see_other("/scores", Some(e));
         }
     };
+    let match_scores = match MatchScoreInput::new_from_form(&form_data) {
+        Ok(res) => res,
+        Err(e) => {
+            return see_other(
+                &format!("/scores?matchup_id={}", form_data.matchup_id),
+                Some(e),
+            )
+        }
+    };
     if match_info.player_in_match(&form_data.winner_initials) {
         match save_match_score(
             &pg_pool,
             form_data.matchup_id,
-            &form_data.winner_initials,
-            form_data.score.clone(),
-            &form_data.played_at,
+            &match_scores.winner_initials,
+            match_scores.score,
+            match_scores.played_at,
         )
         .await
         {
@@ -123,17 +161,10 @@ pub async fn save_match_score(
     pg_pool: &PgPool,
     matchup_id: Uuid,
     winner_initials: &str,
-    score: String,
-    played_date: &str,
+    score: Score,
+    played_date: NaiveDate,
 ) -> Result<(), anyhow::Error> {
-    let mut scores = BinaryHeap::from(
-        score
-            .split(':')
-            .map(|s| s.parse::<i16>().unwrap())
-            .collect::<Vec<i16>>(),
-    );
     let game_id = Uuid::new_v4();
-    let parsed_date = NaiveDate::parse_from_str(played_date, "%Y-%m-%d")?;
     query!(
         r#"
         INSERT INTO scores (match_id, game_id, winner, winner_score, loser_score, created_at, played_at)
@@ -142,9 +173,9 @@ pub async fn save_match_score(
         matchup_id,
         game_id,
         winner_initials,
-        scores.pop(),
-        scores.pop(),
-        parsed_date,
+        score.winner_score,
+        score.loser_score,
+        played_date,
     )
     .execute(pg_pool)
     .await
