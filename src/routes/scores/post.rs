@@ -10,16 +10,16 @@ use uuid::Uuid;
 
 use crate::routes::routing_utils::see_other;
 
-#[derive(serde::Deserialize)]
-pub struct FormData {
-    matchup_id: Uuid,
-    winner_initials: String,
-    score: String,
-    played_at: String,
+#[derive(serde::Deserialize, Debug)]
+pub struct MatchScoreForm {
+    pub matchup_id: Uuid,
+    pub winner_initials: String,
+    pub score: String,
+    pub played_at: String,
 }
 
 #[post("/scores")]
-async fn save_scores(form_data: Form<FormData>, pg_pool: Data<PgPool>) -> impl Responder {
+async fn save_scores(form_data: Form<MatchScoreForm>, pg_pool: Data<PgPool>) -> impl Responder {
     let match_info = match get_match_information(form_data.matchup_id, &pg_pool).await {
         Ok(res) => res,
         Err(e) => {

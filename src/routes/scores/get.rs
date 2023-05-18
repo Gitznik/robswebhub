@@ -169,7 +169,7 @@ fn insert_score_form(matchup_id: Option<Uuid>) -> String {
                   </label>
                   <label for="raw_matches_list">
                     Raw matches list
-                    <textarea id="raw_matches_list" name="raw_matches_list" placeholder="Raw matches list, e.g. 20-02-2023 P1 2:1" rows="5" required></textarea>
+                    <textarea id="raw_matches_list" name="raw_matches_list" placeholder="Raw matches list, e.g. 2023-02-22 P1 2:1" rows="5" required></textarea>
                   </label>
                 </div>
               </form>
