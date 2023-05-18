@@ -9,10 +9,12 @@ use actix_web::{
     Responder,
 };
 use anyhow::{anyhow, Context};
-use sqlx::{query, query_as, types::chrono::NaiveDate, PgPool};
+use sqlx::{query_as, types::chrono::NaiveDate, PgPool};
 use uuid::Uuid;
 
 use crate::routes::routing_utils::see_other;
+
+use super::post_batch::save_scores_to_db;
 
 pub struct Score {
     pub winner_score: i16,
@@ -101,15 +103,7 @@ async fn save_scores(form_data: Form<MatchScoreForm>, pg_pool: Data<PgPool>) -> 
         }
     };
     if match_info.player_in_match(&form_data.winner_initials) {
-        match save_match_score(
-            &pg_pool,
-            form_data.matchup_id,
-            &match_scores.winner_initials,
-            match_scores.score,
-            match_scores.played_at,
-        )
-        .await
-        {
+        match save_match_score(&pg_pool, match_scores).await {
             Ok(_) => see_other(
                 &format!("/scores?matchup_id={}", form_data.matchup_id),
                 None,
@@ -159,26 +153,8 @@ pub async fn get_match_information(
 
 pub async fn save_match_score(
     pg_pool: &PgPool,
-    matchup_id: Uuid,
-    winner_initials: &str,
-    score: Score,
-    played_date: NaiveDate,
+    match_score: MatchScoreInput,
 ) -> Result<(), anyhow::Error> {
-    let game_id = Uuid::new_v4();
-    query!(
-        r#"
-        INSERT INTO scores (match_id, game_id, winner, winner_score, loser_score, created_at, played_at)
-        VALUES ($1, $2, $3, $4, $5, now(), $6)
-        "#,
-        matchup_id,
-        game_id,
-        winner_initials,
-        score.winner_score,
-        score.loser_score,
-        played_date,
-    )
-    .execute(pg_pool)
-    .await
-    .expect("Could not save the score");
+    save_scores_to_db(pg_pool, vec![match_score]).await?;
     Ok(())
 }

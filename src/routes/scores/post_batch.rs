@@ -39,11 +39,11 @@ pub async fn save_scores_batch(form_data: Form<FormData>, pg_pool: Data<PgPool>)
             )
         }
     };
-    let e = save_scores(&pg_pool, match_scores).await.err();
+    let e = save_scores_to_db(&pg_pool, match_scores).await.err();
     see_other(&format!("/scores?matchup_id={}", form_data.matchup_id), e)
 }
 
-pub async fn save_scores(
+pub async fn save_scores_to_db(
     pg_pool: &PgPool,
     scores: Vec<MatchScoreInput>,
 ) -> Result<(), anyhow::Error> {
