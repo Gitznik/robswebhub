@@ -8,7 +8,7 @@ use actix_web::{
     web::{Data, Form},
     Responder,
 };
-use anyhow::anyhow;
+use anyhow::{anyhow, Context};
 use sqlx::{query, query_as, types::chrono::NaiveDate, PgPool};
 use uuid::Uuid;
 
@@ -25,9 +25,9 @@ pub struct MatchScoreForm {
 impl MatchScoreForm {
     pub fn new(matchup_id: Uuid, raw_score: &str) -> Result<Self, anyhow::Error> {
         let elements: Vec<&str> = raw_score.split(' ').collect();
-        let played_at = Self::parse_played_at(elements[0].to_owned())?;
+        let played_at = Self::parse_played_at(elements[0].to_owned()).context("Failed to parse the played_at date")?;
         let winner_initials = elements[1].to_owned();
-        let score = Self::parse_score(raw_score.to_owned())?;
+        let score = Self::parse_score(elements[2].to_owned()).context("Failed to parse the score")?;
         Ok(MatchScoreForm {
             matchup_id,
             played_at,
