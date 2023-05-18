@@ -1,10 +1,14 @@
-use std::collections::{BinaryHeap, HashSet};
+use std::{
+    collections::{BinaryHeap, HashSet},
+    num::ParseIntError,
+};
 
 use actix_web::{
     post,
     web::{Data, Form},
     Responder,
 };
+use anyhow::anyhow;
 use sqlx::{query, query_as, types::chrono::NaiveDate, PgPool};
 use uuid::Uuid;
 
@@ -16,6 +20,36 @@ pub struct MatchScoreForm {
     pub winner_initials: String,
     pub score: String,
     pub played_at: String,
+}
+
+impl MatchScoreForm {
+    pub fn new(matchup_id: Uuid, raw_score: &str) -> Result<Self, anyhow::Error> {
+        let elements: Vec<&str> = raw_score.split(' ').collect();
+        let played_at = Self::parse_played_at(elements[0].to_owned())?;
+        let winner_initials = elements[1].to_owned();
+        let score = Self::parse_score(raw_score.to_owned())?;
+        Ok(MatchScoreForm {
+            matchup_id,
+            played_at,
+            winner_initials,
+            score,
+        })
+    }
+
+    fn parse_played_at(raw_played_at: String) -> Result<String, anyhow::Error> {
+        NaiveDate::parse_from_str(&raw_played_at, "%Y-%m-%d")?;
+        Ok(raw_played_at)
+    }
+
+    fn parse_score(raw_score: String) -> Result<String, anyhow::Error> {
+        let parsed_scores: Result<Vec<i16>, ParseIntError> =
+            raw_score.split(':').map(|s| s.parse::<i16>()).collect();
+        let scores = BinaryHeap::from(parsed_scores?);
+        if scores.len() != 2 {
+            return Err(anyhow!("Score length does not match. Expected 2"));
+        }
+        Ok(raw_score)
+    }
 }
 
 #[post("/scores")]
