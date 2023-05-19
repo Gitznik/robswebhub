@@ -16,11 +16,13 @@ use crate::routes::routing_utils::see_other;
 
 use super::post_batch::save_scores_to_db;
 
+#[derive(Clone)]
 pub struct Score {
     pub winner_score: i16,
     pub loser_score: i16,
 }
 
+#[derive(Clone)]
 pub struct MatchScoreInput {
     pub matchup_id: Uuid,
     pub winner_initials: String,
@@ -127,7 +129,7 @@ pub struct MatchInfo {
 }
 
 impl MatchInfo {
-    fn player_in_match(&self, player: &String) -> bool {
+    pub fn player_in_match(&self, player: &String) -> bool {
         let players_in_match = HashSet::from([&self.player_1, &self.player_2]);
         players_in_match.contains(&player)
     }

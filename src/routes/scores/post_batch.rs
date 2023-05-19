@@ -1,9 +1,11 @@
+use std::collections::HashSet;
+
 use actix_web::{
     post,
     web::{Data, Form},
     Responder,
 };
-use anyhow::Context;
+use anyhow::{anyhow, Context};
 use sqlx::{
     types::chrono::{NaiveDate, NaiveDateTime, Utc},
     PgPool,
@@ -13,7 +15,7 @@ use uuid::Uuid;
 use crate::routes::routing_utils::see_other;
 use crate::routes::scores::post::get_match_information;
 
-use super::post::MatchScoreInput;
+use super::post::{MatchInfo, MatchScoreInput};
 
 #[derive(serde::Deserialize)]
 pub struct FormData {
@@ -29,7 +31,6 @@ pub async fn save_scores_batch(form_data: Form<FormData>, pg_pool: Data<PgPool>)
             return see_other("/scores", Some(e));
         }
     };
-    dbg!(&form_data.raw_matches_list);
     let match_scores = match parse_match_scores(form_data.matchup_id, &form_data.raw_matches_list) {
         Ok(res) => res,
         Err(e) => {
@@ -41,6 +42,29 @@ pub async fn save_scores_batch(form_data: Form<FormData>, pg_pool: Data<PgPool>)
     };
     let e = save_scores_to_db(&pg_pool, match_scores).await.err();
     see_other(&format!("/scores?matchup_id={}", form_data.matchup_id), e)
+}
+
+pub struct MatchScores(Vec<MatchScoreInput>);
+
+impl MatchScores {
+    pub fn new(
+        match_scores: Vec<MatchScoreInput>,
+        match_info: MatchInfo,
+    ) -> Result<Self, anyhow::Error> {
+        let players: HashSet<String> = match_scores
+            .clone()
+            .into_iter()
+            .map(|score| score.winner_initials)
+            .collect();
+
+        for player in players {
+            if !match_info.player_in_match(&player) {
+                return Err(anyhow!("Provided player not in match"));
+            }
+        }
+
+        Ok(MatchScores(match_scores))
+    }
 }
 
 pub async fn save_scores_to_db(
