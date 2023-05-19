@@ -14,7 +14,7 @@ use uuid::Uuid;
 
 use crate::routes::routing_utils::see_other;
 
-use super::post_batch::save_scores_to_db;
+use super::post_batch::{save_scores_to_db, MatchScores};
 
 #[derive(Clone)]
 pub struct Score {
@@ -104,19 +104,21 @@ async fn save_scores(form_data: Form<MatchScoreForm>, pg_pool: Data<PgPool>) -> 
             )
         }
     };
-    if match_info.player_in_match(&form_data.winner_initials) {
-        match save_match_score(&pg_pool, match_scores).await {
-            Ok(_) => see_other(
+    let match_scores = match MatchScores::new(vec![match_scores], match_info) {
+        Ok(res) => res,
+        Err(e) => {
+            return see_other(
                 &format!("/scores?matchup_id={}", form_data.matchup_id),
-                None,
-            ),
-            Err(e) => see_other("/scores", Some(e)),
+                Some(e),
+            )
         }
-    } else {
-        see_other(
+    };
+    match save_match_score(&pg_pool, match_scores).await {
+        Ok(_) => see_other(
             &format!("/scores?matchup_id={}", form_data.matchup_id),
-            Some(anyhow::anyhow!("Player not found in this match")),
-        )
+            None,
+        ),
+        Err(e) => see_other("/scores", Some(e)),
     }
 }
 
@@ -155,8 +157,8 @@ pub async fn get_match_information(
 
 pub async fn save_match_score(
     pg_pool: &PgPool,
-    match_score: MatchScoreInput,
+    match_scores: MatchScores,
 ) -> Result<(), anyhow::Error> {
-    save_scores_to_db(pg_pool, vec![match_score]).await?;
+    save_scores_to_db(pg_pool, match_scores).await?;
     Ok(())
 }

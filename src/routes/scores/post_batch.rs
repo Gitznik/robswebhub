@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, ops::Deref};
 
 use actix_web::{
     post,
@@ -25,13 +25,22 @@ pub struct FormData {
 
 #[post("/scores_batch")]
 pub async fn save_scores_batch(form_data: Form<FormData>, pg_pool: Data<PgPool>) -> impl Responder {
-    let _match_info = match get_match_information(form_data.matchup_id, &pg_pool).await {
+    let match_info = match get_match_information(form_data.matchup_id, &pg_pool).await {
         Ok(res) => res,
         Err(e) => {
             return see_other("/scores", Some(e));
         }
     };
     let match_scores = match parse_match_scores(form_data.matchup_id, &form_data.raw_matches_list) {
+        Ok(res) => res,
+        Err(e) => {
+            return see_other(
+                &format!("/scores?matchup_id={}", form_data.matchup_id),
+                Some(e),
+            )
+        }
+    };
+    let match_scores = match MatchScores::new(match_scores, match_info) {
         Ok(res) => res,
         Err(e) => {
             return see_other(
@@ -67,10 +76,24 @@ impl MatchScores {
     }
 }
 
-pub async fn save_scores_to_db(
-    pg_pool: &PgPool,
-    scores: Vec<MatchScoreInput>,
-) -> Result<(), anyhow::Error> {
+impl IntoIterator for MatchScores {
+    type Item = MatchScoreInput;
+    type IntoIter = <Vec<MatchScoreInput> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+
+impl Deref for MatchScores {
+    type Target = Vec<MatchScoreInput>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+pub async fn save_scores_to_db(pg_pool: &PgPool, scores: MatchScores) -> Result<(), anyhow::Error> {
     let mut matchup_ids: Vec<Uuid> = Vec::with_capacity(scores.len());
     let mut winner_initials: Vec<String> = Vec::with_capacity(scores.len());
     let mut winner_scores: Vec<i16> = Vec::with_capacity(scores.len());
