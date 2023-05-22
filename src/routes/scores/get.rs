@@ -1,8 +1,8 @@
 use crate::routes::{
-    flash_messages_utils::flash_messages_section, routing_utils::see_other,
+    flash_messages_utils::flash_messages_section, routing_utils::see_other_error,
     scores::post::get_match_information,
 };
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_web::{get, web, HttpResponse};
 use actix_web_flash_messages::IncomingFlashMessages;
 use serde::Deserialize;
 use sqlx::{query_as, types::chrono::NaiveDate, PgPool};
@@ -20,16 +20,13 @@ async fn add_scores(
     query: web::Query<QueryData>,
     pg_pool: web::Data<PgPool>,
     flash_messages: IncomingFlashMessages,
-) -> impl Responder {
-    let error_html = match flash_messages_section(flash_messages) {
-        Ok(html) => html,
-        Err(e) => return HttpResponse::InternalServerError().body(format!("{}", e)),
-    };
+) -> actix_web::Result<HttpResponse> {
+    let error_html = flash_messages_section(flash_messages)
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
     let scores = match query.matchup_id {
-        Some(matchup_id) => match match_summary(matchup_id, &pg_pool).await {
-            Ok(res) => res,
-            Err(e) => return see_other("/scores", Some(e)),
-        },
+        Some(matchup_id) => match_summary(matchup_id, &pg_pool)
+            .await
+            .map_err(|e| see_other_error("/scores", Some(e)))?,
         None => "".to_owned(),
     };
     let insert_score_form = insert_score_form(query.matchup_id);
@@ -39,7 +36,7 @@ async fn add_scores(
         &error_html, &main_div, &insert_score_form, &scores
     );
     let html = compose_html(&main_div);
-    HttpResponse::Ok().body(html)
+    Ok(HttpResponse::Ok().body(html))
 }
 
 async fn match_summary(match_id: Uuid, pg_pool: &PgPool) -> Result<String, anyhow::Error> {
