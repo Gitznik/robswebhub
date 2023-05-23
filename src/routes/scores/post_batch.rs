@@ -3,7 +3,7 @@ use std::{collections::HashSet, ops::Deref};
 use actix_web::{
     post,
     web::{Data, Form},
-    Responder,
+    HttpResponse,
 };
 use anyhow::{anyhow, Context};
 use sqlx::{
@@ -12,7 +12,7 @@ use sqlx::{
 };
 use uuid::Uuid;
 
-use crate::routes::routing_utils::see_other;
+use crate::routes::routing_utils::{see_other, see_other_error};
 use crate::routes::scores::post::get_match_information;
 
 use super::post::{MatchInfo, MatchScoreInput};
@@ -24,33 +24,31 @@ pub struct FormData {
 }
 
 #[post("/scores_batch")]
-pub async fn save_scores_batch(form_data: Form<FormData>, pg_pool: Data<PgPool>) -> impl Responder {
-    let match_info = match get_match_information(form_data.matchup_id, &pg_pool).await {
-        Ok(res) => res,
-        Err(e) => {
-            return see_other("/scores", Some(e));
-        }
-    };
-    let match_scores = match parse_match_scores(form_data.matchup_id, &form_data.raw_matches_list) {
-        Ok(res) => res,
-        Err(e) => {
-            return see_other(
+pub async fn save_scores_batch(
+    form_data: Form<FormData>,
+    pg_pool: Data<PgPool>,
+) -> actix_web::Result<HttpResponse> {
+    let match_info = get_match_information(form_data.matchup_id, &pg_pool)
+        .await
+        .map_err(|e| see_other_error("/scores", Some(e)))?;
+    let match_scores = parse_match_scores(form_data.matchup_id, &form_data.raw_matches_list)
+        .map_err(|e| {
+            see_other_error(
                 &format!("/scores?matchup_id={}", form_data.matchup_id),
                 Some(e),
             )
-        }
-    };
-    let match_scores = match MatchScores::new(match_scores, match_info) {
-        Ok(res) => res,
-        Err(e) => {
-            return see_other(
-                &format!("/scores?matchup_id={}", form_data.matchup_id),
-                Some(e),
-            )
-        }
-    };
+        })?;
+    let match_scores = MatchScores::new(match_scores, match_info).map_err(|e| {
+        see_other_error(
+            &format!("/scores?matchup_id={}", form_data.matchup_id),
+            Some(e),
+        )
+    })?;
     let e = save_scores_to_db(&pg_pool, match_scores).await.err();
-    see_other(&format!("/scores?matchup_id={}", form_data.matchup_id), e)
+    Ok(see_other(
+        &format!("/scores?matchup_id={}", form_data.matchup_id),
+        e,
+    ))
 }
 
 pub struct MatchScores(Vec<MatchScoreInput>);
