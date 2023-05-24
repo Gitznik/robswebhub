@@ -1,6 +1,6 @@
-use std::fmt::Display;
 use actix_web::{http::header::LOCATION, HttpResponse};
 use actix_web_flash_messages::FlashMessage;
+use std::fmt::Display;
 
 pub fn see_other(location: &str, error: Option<anyhow::Error>) -> HttpResponse {
     if let Some(e) = error {
@@ -10,7 +10,6 @@ pub fn see_other(location: &str, error: Option<anyhow::Error>) -> HttpResponse {
         .insert_header((LOCATION, location))
         .finish();
 }
-
 
 pub fn see_other_error(location: &str, error: Option<anyhow::Error>) -> SeeOtherError {
     if let Some(e) = error {

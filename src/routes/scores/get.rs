@@ -22,7 +22,7 @@ async fn add_scores(
     flash_messages: IncomingFlashMessages,
 ) -> actix_web::Result<HttpResponse> {
     let error_html = flash_messages_section(flash_messages)
-        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+        .map_err(actix_web::error::ErrorInternalServerError)?;
     let scores = match query.matchup_id {
         Some(matchup_id) => match_summary(matchup_id, &pg_pool)
             .await
