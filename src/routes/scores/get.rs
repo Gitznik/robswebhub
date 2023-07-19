@@ -4,11 +4,16 @@ use crate::routes::{
 };
 use actix_web::{get, web, HttpResponse};
 use actix_web_flash_messages::IncomingFlashMessages;
+use chrono::Days;
+use itertools::Itertools;
+use plotters::prelude::*;
 use serde::Deserialize;
 use sqlx::{query_as, types::chrono::NaiveDate, PgPool};
 use uuid::Uuid;
 
 use crate::html_base::compose_html;
+
+use super::post::MatchInfo;
 
 #[derive(Debug, Deserialize)]
 struct QueryData {
@@ -40,8 +45,11 @@ async fn add_scores(
 }
 
 async fn match_summary(match_id: Uuid, pg_pool: &PgPool) -> Result<String, anyhow::Error> {
-    get_match_information(match_id, pg_pool).await?;
+    let match_information = get_match_information(match_id, pg_pool).await?;
     let match_scores = get_match_scores(match_id, pg_pool).await?;
+
+    match_result_plots(match_information, match_scores.clone()).unwrap();
+
     let match_rows: Vec<String> = match_scores
         .into_iter()
         .map(|res| {
@@ -78,14 +86,83 @@ async fn match_summary(match_id: Uuid, pg_pool: &PgPool) -> Result<String, anyho
             {}
           </tbody>
         </table>
+        <div>
+          <img src="images/match_plots/{}.png" alt="Match Results Graph" width="640" height="480">
+        </div>
       </main>
     "#,
-        match_id,
-        match_rows.join("\n")
+        &match_id,
+        match_rows.join("\n"),
+        &match_id,
     ))
 }
 
-#[derive(Debug)]
+fn match_result_plots(
+    match_information: MatchInfo,
+    match_scores: Vec<MatchScore>,
+) -> Result<(), anyhow::Error> {
+    let path = format!("images/match_plots/{}.png", match_information.id);
+    let root = BitMapBackend::new(&path, (640, 480)).into_drawing_area();
+    let (start, end) = match_scores
+        .clone()
+        .into_iter()
+        .minmax_by_key(|s| s.played_at)
+        .into_option()
+        .unwrap();
+    root.fill(&WHITE)?;
+    let mut chart = ChartBuilder::on(&root)
+        .caption("Summary of Wins", ("sans-serif", 50).into_font())
+        .margin(5)
+        .x_label_area_size(30)
+        .y_label_area_size(30)
+        .build_cartesian_2d(
+            start.played_at.checked_sub_days(Days::new(9)).unwrap()
+                ..end.played_at.checked_add_days(Days::new(9)).unwrap(),
+            0..50, // TODO: make this relative to the max score reached
+        )?;
+
+    chart.configure_mesh().draw()?;
+
+    let p1_wins = match_scores
+        .clone()
+        .into_iter()
+        .filter(|s| s.winner == match_information.player_1)
+        .map(|s| s.played_at)
+        .sorted()
+        .scan(0, |acc, d| {
+            *acc += 1;
+            Some((d, *acc))
+        });
+    dbg!(&p1_wins);
+    let p2_wins = match_scores
+        .into_iter()
+        .filter(|s| s.winner == match_information.player_2)
+        .map(|s| s.played_at)
+        .sorted()
+        .scan(0, |acc, d| {
+            *acc += 1;
+            Some((d, *acc))
+        });
+    dbg!(&p2_wins);
+    chart
+        .draw_series(LineSeries::new(p1_wins, BLUE.stroke_width(3)))?
+        .label(format!("Wins of {}", &match_information.player_1)); // TODO: Add the line color
+    chart
+        .draw_series(LineSeries::new(p2_wins, RED.stroke_width(3)))?
+        .label(format!("Wins of {}", &match_information.player_2)); // TODO: Add the line color
+
+    chart
+        .configure_series_labels()
+        .background_style(WHITE.mix(0.8))
+        .border_style(BLACK)
+        .draw()?;
+
+    root.present()?;
+
+    Ok(())
+}
+
+#[derive(Debug, Clone)]
 #[allow(dead_code)]
 struct MatchScore {
     match_id: Uuid,

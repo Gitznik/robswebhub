@@ -119,9 +119,9 @@ async fn save_scores(
 #[derive(Debug)]
 #[allow(dead_code)]
 pub struct MatchInfo {
-    id: Uuid,
-    player_1: String,
-    player_2: String,
+    pub id: Uuid,
+    pub player_1: String,
+    pub player_2: String,
 }
 
 impl MatchInfo {

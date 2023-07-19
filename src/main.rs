@@ -29,6 +29,10 @@ async fn main() -> std::io::Result<()> {
     let message_framework = FlashMessagesFramework::builder(message_store).build();
     let pg_pool = get_connection_pool(&configuration.database).await;
     let pg_pool = web::Data::new(pg_pool);
+    println!(
+        "Creating App listening on {}:{}",
+        configuration.application.host, configuration.application.port
+    );
     HttpServer::new(move || {
         App::new()
             .wrap(message_framework.clone())
