@@ -142,12 +142,19 @@ fn match_result_plots(
         )?;
 
     chart.configure_mesh().draw()?;
+    const STROKE_WIDTH: u32 = 3;
     chart
-        .draw_series(LineSeries::new(p1_wins, BLUE.stroke_width(3)))?
-        .label(format!("Wins of {}", &match_information.player_1)); // TODO: Add the line color
+        .draw_series(LineSeries::new(p1_wins, BLUE.stroke_width(STROKE_WIDTH)))?
+        .label(format!("Wins of {}", &match_information.player_1))
+        .legend(|(x, y)| {
+            PathElement::new(vec![(x, y), (x + 20, y)], BLUE.stroke_width(STROKE_WIDTH))
+        });
     chart
-        .draw_series(LineSeries::new(p2_wins, RED.stroke_width(3)))?
-        .label(format!("Wins of {}", &match_information.player_2)); // TODO: Add the line color
+        .draw_series(LineSeries::new(p2_wins, RED.stroke_width(STROKE_WIDTH)))?
+        .label(format!("Wins of {}", &match_information.player_2))
+        .legend(|(x, y)| {
+            PathElement::new(vec![(x, y), (x + 20, y)], RED.stroke_width(STROKE_WIDTH))
+        });
 
     chart
         .configure_series_labels()
