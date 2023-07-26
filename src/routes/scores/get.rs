@@ -5,10 +5,12 @@ use crate::routes::{
 use actix_web::{get, web, HttpResponse};
 use actix_web_flash_messages::IncomingFlashMessages;
 use chrono::Days;
+use core::ops::Deref;
 use itertools::Itertools;
 use plotters::prelude::*;
 use serde::Deserialize;
 use sqlx::{query_as, types::chrono::NaiveDate, PgPool};
+use std::collections::HashMap;
 use uuid::Uuid;
 
 use crate::html_base::compose_html;
@@ -18,6 +20,57 @@ use super::post::MatchInfo;
 #[derive(Debug, Deserialize)]
 struct QueryData {
     matchup_id: Option<Uuid>,
+}
+
+#[derive(Debug, Clone)]
+struct MatchScores(Vec<MatchScore>);
+
+impl MatchScores {
+    fn players(&self) -> Vec<String> {
+        self.clone()
+            .into_iter()
+            .unique_by(|s| s.clone().winner)
+            .map(|s| s.winner)
+            .collect_vec()
+    }
+
+    fn cumm_sum_wins(&self) -> HashMap<String, Vec<(NaiveDate, i32)>> {
+        let players = self.players();
+        let mut scores = HashMap::new();
+        for player in players {
+            let cum_scores = self
+                .clone()
+                .into_iter()
+                .filter(|s| s.winner == player)
+                .map(|s| s.played_at)
+                .sorted()
+                .scan(0, |acc, d| {
+                    *acc += 1;
+                    Some((d, *acc))
+                })
+                .collect_vec();
+
+            scores.insert(player, cum_scores);
+        }
+        scores
+    }
+}
+
+impl IntoIterator for MatchScores {
+    type Item = MatchScore;
+    type IntoIter = <Vec<MatchScore> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+
+impl Deref for MatchScores {
+    type Target = Vec<MatchScore>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 #[get("/scores")]
@@ -46,7 +99,7 @@ async fn add_scores(
 
 async fn match_summary(match_id: Uuid, pg_pool: &PgPool) -> Result<String, anyhow::Error> {
     let match_information = get_match_information(match_id, pg_pool).await?;
-    let match_scores = get_match_scores(match_id, pg_pool).await?;
+    let match_scores = MatchScores(get_match_scores(match_id, pg_pool).await?);
 
     match_result_plots(match_information, match_scores.clone()).unwrap();
 
@@ -99,28 +152,31 @@ async fn match_summary(match_id: Uuid, pg_pool: &PgPool) -> Result<String, anyho
 
 fn match_result_plots(
     match_information: MatchInfo,
-    match_scores: Vec<MatchScore>,
+    match_scores: MatchScores,
 ) -> Result<(), anyhow::Error> {
-    fn cumm_sum_wins(match_scores: Vec<MatchScore>, player: &str) -> Vec<(NaiveDate, i32)> {
-        match_scores
-            .into_iter()
-            .filter(|s| s.winner == player)
-            .map(|s| s.played_at)
-            .sorted()
-            .scan(0, |acc, d| {
-                *acc += 1;
-                Some((d, *acc))
-            })
-            .collect_vec()
-    }
-    let p1_wins = cumm_sum_wins(match_scores.clone(), &match_information.player_1);
-    let p2_wins = cumm_sum_wins(match_scores.clone(), &match_information.player_2);
+    let mut wins = match_scores.cumm_sum_wins();
+    let p1_wins = wins.remove(&match_information.player_1).unwrap_or_else(|| {
+        let v: Vec<(NaiveDate, i32)> = Vec::new();
+        v
+    });
+    let p2_wins = wins.remove(&match_information.player_2).unwrap_or_else(|| {
+        let v: Vec<(NaiveDate, i32)> = Vec::new();
+        v
+    });
     let max_wins = std::cmp::max(
-        p1_wins.clone().into_iter().max_by_key(|w| w.1),
-        p2_wins.clone().into_iter().max_by_key(|w| w.1),
-    )
-    .unwrap()
-    .1;
+        p1_wins
+            .clone()
+            .into_iter()
+            .max_by_key(|w| w.1)
+            .map(|w| w.1)
+            .unwrap_or(0),
+        p2_wins
+            .clone()
+            .into_iter()
+            .max_by_key(|w| w.1)
+            .map(|w| w.1)
+            .unwrap_or(0),
+    );
 
     let path = format!("images/match_plots/{}.png", match_information.id);
     let root = BitMapBackend::new(&path, (640, 480)).into_drawing_area();
