@@ -101,10 +101,30 @@ fn match_result_plots(
     match_information: MatchInfo,
     match_scores: Vec<MatchScore>,
 ) -> Result<(), anyhow::Error> {
+    fn cumm_sum_wins(match_scores: Vec<MatchScore>, player: &str) -> Vec<(NaiveDate, i32)> {
+        match_scores
+            .into_iter()
+            .filter(|s| s.winner == player)
+            .map(|s| s.played_at)
+            .sorted()
+            .scan(0, |acc, d| {
+                *acc += 1;
+                Some((d, *acc))
+            })
+            .collect_vec()
+    }
+    let p1_wins = cumm_sum_wins(match_scores.clone(), &match_information.player_1);
+    let p2_wins = cumm_sum_wins(match_scores.clone(), &match_information.player_2);
+    let max_wins = std::cmp::max(
+        p1_wins.clone().into_iter().max_by_key(|w| w.1),
+        p2_wins.clone().into_iter().max_by_key(|w| w.1),
+    )
+    .unwrap()
+    .1;
+
     let path = format!("images/match_plots/{}.png", match_information.id);
     let root = BitMapBackend::new(&path, (640, 480)).into_drawing_area();
     let (start, end) = match_scores
-        .clone()
         .into_iter()
         .minmax_by_key(|s| s.played_at)
         .into_option()
@@ -118,32 +138,10 @@ fn match_result_plots(
         .build_cartesian_2d(
             start.played_at.checked_sub_days(Days::new(9)).unwrap()
                 ..end.played_at.checked_add_days(Days::new(9)).unwrap(),
-            0..50, // TODO: make this relative to the max score reached
+            0..(max_wins + (max_wins / 20 + 1)),
         )?;
 
     chart.configure_mesh().draw()?;
-
-    let p1_wins = match_scores
-        .clone()
-        .into_iter()
-        .filter(|s| s.winner == match_information.player_1)
-        .map(|s| s.played_at)
-        .sorted()
-        .scan(0, |acc, d| {
-            *acc += 1;
-            Some((d, *acc))
-        });
-    dbg!(&p1_wins);
-    let p2_wins = match_scores
-        .into_iter()
-        .filter(|s| s.winner == match_information.player_2)
-        .map(|s| s.played_at)
-        .sorted()
-        .scan(0, |acc, d| {
-            *acc += 1;
-            Some((d, *acc))
-        });
-    dbg!(&p2_wins);
     chart
         .draw_series(LineSeries::new(p1_wins, BLUE.stroke_width(3)))?
         .label(format!("Wins of {}", &match_information.player_1)); // TODO: Add the line color
