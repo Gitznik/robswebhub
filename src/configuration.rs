@@ -25,6 +25,7 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
         .unwrap_or_else(|_| "dev".into())
         .try_into()
         .expect("Failed to parse APP_ENVIRONMENT");
+    println!("Running in environment {:?}", environment);
     let environment_filename = format!("{}.yaml", environment.as_str());
     match environment {
         Environment::Dev => {}
@@ -52,6 +53,7 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     settings.try_deserialize::<Settings>()
 }
 
+#[derive(Debug)]
 pub enum Environment {
     Dev,
     Production,

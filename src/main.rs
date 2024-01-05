@@ -8,7 +8,7 @@ use robswebhub::{
     configuration::get_configuration,
     routes::{
         about::get::about,
-        root::get::root,
+        root::get::{root, root_head},
         scores::{get::add_scores, post::save_scores},
     },
 };
@@ -37,6 +37,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(message_framework.clone())
             .service(root)
+            .service(root_head)
             .service(about)
             .service(add_scores)
             .service(save_scores)
