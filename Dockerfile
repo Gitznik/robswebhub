@@ -1,11 +1,11 @@
-FROM rust as builder
+FROM rust:1-bookworm as builder
 WORKDIR /usr/src/app
 
 COPY . .
 RUN cargo build --release --bin robswebhub
 
 #fontconfig libfontconfig1
-FROM debian:bullseye-slim AS runtime
+FROM debian:bookworm-slim AS runtime
 WORKDIR /usr/src/app
 RUN apt-get update -y \
   && apt-get install -y --no-install-recommends openssl ca-certificates pkg-config fontconfig libfontconfig1 libfreetype6-dev libfontconfig1-dev \
