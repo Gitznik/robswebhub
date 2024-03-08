@@ -85,7 +85,7 @@ async fn add_scores(
         Some(matchup_id) => match_summary(matchup_id, &pg_pool)
             .await
             .map_err(|e| see_other_error("/scores", Some(e)))?,
-        None => "".to_owned(),
+        None => r#"<div>You can find an example match <a href="/scores?matchup_id=b13a16d8-c46e-4921-83f2-eec9675fce74">here</a>.</div>"#.to_string(),
     };
     let insert_score_form = insert_score_form(query.matchup_id);
     let main_div = include_str!("get.html");
