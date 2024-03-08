@@ -16,18 +16,14 @@ async fn get_single_result_form(query: web::Query<QueryData>) -> actix_web::Resu
     let body = format!(
         r#"
             <div id="score_entry_form">
+              <h3>Single Entry</h3>
               <form id="single_result" action="/scores/scores_single" method="post">
                 <div class="grid">
-                  <label for="matchup_id">
-                    Matchup Id
-                    <input type="text" id="matchup_id" name="matchup_id" placeholder="Matchup Id" {} required>
-                  </label>
+                  <input type="hidden" id="matchup_id" name="matchup_id" placeholder="Matchup Id" {} required>
                   <label for="winner_initials">
                     Winner Credentials
                     <input type="text" id="winner_initials" name="winner_initials" placeholder="Winner Initials" required>
                   </label>
-                </div>
-                <div class="grid">
                   <label for="score">
                     Score, separated by ":"
                     <input type="text" id="score" name="score" placeholder="Score" required>

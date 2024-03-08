@@ -16,12 +16,10 @@ async fn get_batch_result_form(query: web::Query<QueryData>) -> actix_web::Resul
     let body = format!(
         r#"
     <div id="score_entry_form">
+        <h3>Batch Entry</h3>
         <form id="batch_upload" action="/scores_batch" method="post">
             <div class="grid">
-              <label for="matchup_id">
-                Matchup Id
-                <input type="text" id="matchup_id" name="matchup_id" placeholder="Matchup Id" {} required>
-              </label>
+              <input type="hidden" id="matchup_id" name="matchup_id" placeholder="Matchup Id" {} required>
               <label for="raw_matches_list">
                 Raw matches list
                 <textarea id="raw_matches_list" name="raw_matches_list" placeholder="Raw matches list, e.g. 2023-02-22 P1 2:1" rows="5" required></textarea>

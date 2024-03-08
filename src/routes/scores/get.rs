@@ -87,11 +87,15 @@ async fn add_scores(
             .map_err(|e| see_other_error("/scores", Some(e)))?,
         None => r#"<div>You can find an example match <a href="/scores?matchup_id=b13a16d8-c46e-4921-83f2-eec9675fce74">here</a>.</div>"#.to_string(),
     };
+    let match_title = match query.matchup_id {
+        Some(matchup_id) => format!(r#"<h1>Match {}</h1>"#, matchup_id),
+        None => "".to_string(),
+    };
     let insert_score_form = insert_score_form(query.matchup_id);
     let main_div = include_str!("get.html");
     let main_div = format!(
-        "{}\n<main class=\"container\">{}{}{}</main>",
-        &error_html, &main_div, &insert_score_form, &scores
+        "{}\n<main class=\"container\">{}{}{}{}</main>",
+        &error_html, &main_div, &match_title, &insert_score_form, &scores
     );
     let html = compose_html(&main_div);
     Ok(HttpResponse::Ok().body(html))
@@ -123,8 +127,10 @@ async fn match_summary(match_id: Uuid, pg_pool: &PgPool) -> Result<String, anyho
 
     Ok(format!(
         r#"
-        <h1>Match Scores for Match</h1>
-        <h2>{}</h2>
+        <h2>Scores</h2>
+        <figure align="center">
+          <img src="images/match_plots/{}.png" alt="Match Results Graph">
+        </figure>
         <table role="grid">
           <thead>
             <tr>
@@ -139,14 +145,10 @@ async fn match_summary(match_id: Uuid, pg_pool: &PgPool) -> Result<String, anyho
             {}
           </tbody>
         </table>
-        <div>
-          <img src="images/match_plots/{}.png" alt="Match Results Graph" width="640" height="480">
-        </div>
       </main>
     "#,
         &match_id,
         match_rows.join("\n"),
-        &match_id,
     ))
 }
 
@@ -260,12 +262,11 @@ fn insert_score_form(matchup_id: Option<Uuid>) -> String {
                 r##"
         <div>
           <h2>Add Score</h2>
-          <div class="grid">
             <div class="grid">
               <button hx-get="/scores/single_result_form" hx-trigger="load,click" hx-target="#score_entry_form" hx-vals='{{"matchup_id":"{}"}}' hx-swap="outerHTML ignoreTitle:true">Single Result Entry</button>
               <button hx-get="/scores/batch_result_form" hx-target="#score_entry_form" hx-vals='{{"matchup_id":"{}"}}' hx-swap="outerHTML ignoreTitle:true">Multiple Result Entry</button>
             </div>
-          </div>
+          <p />
           <div id="score_entry_form"</div>
         </div>
     "##,
