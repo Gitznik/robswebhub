@@ -3,13 +3,12 @@ use actix_web::cookie::Key;
 use actix_web::{web, App, HttpServer};
 use actix_web_flash_messages::{storage::CookieMessageStore, FlashMessagesFramework};
 use robswebhub::configuration::DatabaseSettings;
-use robswebhub::routes::scores::post_batch::save_scores_batch;
+use robswebhub::routes::scores::main::scores_config;
 use robswebhub::{
     configuration::get_configuration,
     routes::{
         about::get::about,
         root::get::{root, root_head},
-        scores::{get::add_scores, post::save_scores},
     },
 };
 use sqlx::postgres::PgPoolOptions;
@@ -39,10 +38,9 @@ async fn main() -> std::io::Result<()> {
             .service(root)
             .service(root_head)
             .service(about)
-            .service(add_scores)
-            .service(save_scores)
-            .service(save_scores_batch)
+            .configure(scores_config)
             .service(Files::new("/images", "./images"))
+            .service(Files::new("/static", "./static"))
             .app_data(pg_pool.clone())
     })
     .bind((

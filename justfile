@@ -13,4 +13,4 @@ run-docker:
 build-and-run: build-docker run-docker
 
 run:
-	cargo run
+	cargo watch -x run

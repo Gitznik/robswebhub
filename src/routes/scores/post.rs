@@ -87,7 +87,7 @@ pub struct MatchScoreForm {
     pub played_at: String,
 }
 
-#[post("/scores")]
+#[post("/scores_single")]
 async fn save_scores(
     form_data: Form<MatchScoreForm>,
     pg_pool: Data<PgPool>,

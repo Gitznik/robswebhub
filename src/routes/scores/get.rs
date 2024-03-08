@@ -73,7 +73,7 @@ impl Deref for MatchScores {
     }
 }
 
-#[get("/scores")]
+#[get("")]
 async fn add_scores(
     query: web::Query<QueryData>,
     pg_pool: web::Data<PgPool>,
@@ -254,64 +254,24 @@ async fn get_match_scores(
 }
 
 fn insert_score_form(matchup_id: Option<Uuid>) -> String {
-    let default_matchup = match matchup_id {
-        Some(matchup_id) => format!("value={}", matchup_id),
-        None => "".to_owned(),
-    };
-    format!(
-        r#"
+    match matchup_id {
+        Some(matchup_id) => {
+            format!(
+                r##"
         <div>
           <h2>Add Score</h2>
           <div class="grid">
-            <div>
-              <div class="grid">
-                <h3>Single Result</h3>
-                <button type="submit" form="single_result">Submit</button>
-              </div>
-              <form id="single_result" action="/scores" method="post">
-                <div class="grid">
-                  <label for="matchup_id">
-                    Matchup Id
-                    <input type="text" id="matchup_id" name="matchup_id" placeholder="Matchup Id" {} required>
-                  </label>
-                  <label for="winner_initials">
-                    Winner Credentials
-                    <input type="text" id="winner_initials" name="winner_initials" placeholder="Winner Initials" required>
-                  </label>
-                </div>
-                <div class="grid">
-                  <label for="score">
-                    Score, separated by ":"
-                    <input type="text" id="score" name="score" placeholder="Score" required>
-                  </label>
-                  <label for="played_at">
-                    Date the match was played at
-                    <input type="date" id="played_at" name="played_at" placeholder="dd.mm.yyyy" required>
-                  </label>
-                </div>
-              </form>
-            </div>
-            <div>
-              <div class="grid">
-                <h3>Batch Upload</h3>
-                <button type="submit" form="batch_upload">Submit</button>
-              </div>
-              <form id="batch_upload" action="/scores_batch" method="post">
-                <div class="grid">
-                  <label for="matchup_id">
-                    Matchup Id
-                    <input type="text" id="matchup_id" name="matchup_id" placeholder="Matchup Id" {} required>
-                  </label>
-                  <label for="raw_matches_list">
-                    Raw matches list
-                    <textarea id="raw_matches_list" name="raw_matches_list" placeholder="Raw matches list, e.g. 2023-02-22 P1 2:1" rows="5" required></textarea>
-                  </label>
-                </div>
-              </form>
+            <div class="grid">
+              <button hx-get="/scores/single_result_form" hx-trigger="load,click" hx-target="#score_entry_form" hx-vals='{{"matchup_id":"{}"}}' hx-swap="outerHTML ignoreTitle:true">Single Result Entry</button>
+              <button hx-get="/scores/batch_result_form" hx-target="#score_entry_form" hx-vals='{{"matchup_id":"{}"}}' hx-swap="outerHTML ignoreTitle:true">Multiple Result Entry</button>
             </div>
           </div>
+          <div id="score_entry_form"</div>
         </div>
-    "#,
-        default_matchup, default_matchup
-    )
+    "##,
+                matchup_id, matchup_id
+            )
+        }
+        None => "".to_owned(),
+    }
 }
