@@ -15,4 +15,5 @@ RUN apt-get update -y \
 COPY --from=builder /usr/src/app/target/release/robswebhub robswebhub
 COPY configuration configuration
 COPY images images
+COPY static static
 ENTRYPOINT [ "./robswebhub" ]
