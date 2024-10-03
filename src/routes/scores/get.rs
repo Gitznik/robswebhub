@@ -109,6 +109,7 @@ async fn match_summary(match_id: Uuid, pg_pool: &PgPool) -> Result<String, anyho
 
     let match_rows: Vec<String> = match_scores
         .into_iter()
+        .take(5)
         .map(|res| {
             format!(
                 r#"
@@ -131,6 +132,7 @@ async fn match_summary(match_id: Uuid, pg_pool: &PgPool) -> Result<String, anyho
         <figure align="center">
           <img src="images/match_plots/{}.png" alt="Match Results Graph">
         </figure>
+        <h3>Most recent results</h3>
         <table role="grid">
           <thead>
             <tr>
