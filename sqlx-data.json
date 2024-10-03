@@ -32,24 +32,7 @@
     },
     "query": "\n        select id, player_1, player_2\n        from matches\n        where id = $1\n        "
   },
-  "edda11e287e2d8e0cea5a97122f412fd22d8a468478bce1b229e3f418b0a31f1": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Uuid",
-          "Text",
-          "Int2",
-          "Int2",
-          "Date"
-        ]
-      }
-    },
-    "query": "\n        INSERT INTO scores (match_id, game_id, winner, winner_score, loser_score, created_at, played_at)\n        VALUES ($1, $2, $3, $4, $5, now(), $6)\n        "
-  },
-  "fa56576f5c3702155854b85a1abf7441e525c85bcc0f334f60ab1935ec3d2c7f": {
+  "b9912c14b491c1cfcb7c644339660fd48127d4df76360af1168055bae348506e": {
     "describe": {
       "columns": [
         {
@@ -93,10 +76,11 @@
       ],
       "parameters": {
         "Left": [
-          "Uuid"
+          "Uuid",
+          "Date"
         ]
       }
     },
-    "query": "\n        select match_id, game_id, winner, played_at, winner_score, loser_score\n        from scores\n        where match_id = $1\n        order by played_at desc\n        "
+    "query": "\n        select match_id, game_id, winner, played_at, winner_score, loser_score\n        from scores\n        where match_id = $1\n        and played_at > $2\n        order by played_at desc\n        "
   }
 }

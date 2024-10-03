@@ -5,6 +5,7 @@ use crate::routes::{
 use actix_web::{get, web, HttpResponse};
 use actix_web_flash_messages::IncomingFlashMessages;
 use chrono::Days;
+use chrono::{Duration, Utc};
 use core::ops::Deref;
 use itertools::Itertools;
 use plotters::prelude::*;
@@ -242,15 +243,19 @@ async fn get_match_scores(
     matchup_id: Uuid,
     pg_pool: &PgPool,
 ) -> Result<Vec<MatchScore>, anyhow::Error> {
+    let now = Utc::now().date_naive();
+    let cutoff_date = now - Duration::days(30 * 6);
     let scores = query_as!(
         MatchScore,
         r#"
         select match_id, game_id, winner, played_at, winner_score, loser_score
         from scores
         where match_id = $1
+        and played_at > $2
         order by played_at desc
         "#,
-        matchup_id
+        matchup_id,
+        cutoff_date
     )
     .fetch_all(pg_pool)
     .await?;
