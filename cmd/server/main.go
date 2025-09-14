@@ -36,16 +36,18 @@ func main() {
 	}
 	defer sentry.Flush(2 * time.Second)
 
+	ctx := context.Background()
+	logger := sentry.NewLogger(ctx)
 	// Connect to database
 	db, err := database.Connect(cfg.Database.ConnectionString)
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		logger.Fatal().Emitf("Failed to connect to database: %v", err)
 	}
 	defer db.Close()
 
 	// Run migrations
 	if err := database.RunMigrations(cfg.Database.ConnectionString); err != nil {
-		log.Fatalf("Failed to run migrations: %v", err)
+		logger.Fatal().Emitf("Failed to run migrations: %v", err)
 	}
 
 	// Create queries instance
@@ -78,10 +80,10 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server forced to shutdown:", err)
+		logger.Fatal().Emitf("Server forced to shutdown: %v", err)
 	}
 
-	log.Println("Server exiting")
+	logger.Info().Emit("Server exiting")
 }
 
 func setupRouter(cfg *config.Config, queries *database.Queries) *gin.Engine {

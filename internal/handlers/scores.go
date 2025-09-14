@@ -19,14 +19,14 @@ import (
 )
 
 type ScoreInput struct {
-	MatchupID      uuid.UUID `form:"matchup_id" binding:"required"`
+	MatchupID      string `form:"matchup_id" binding:"required"`
 	WinnerInitials string    `form:"winner_initials" binding:"required"`
 	Score          string    `form:"score" binding:"required"`
 	PlayedAt       string    `form:"played_at" binding:"required"`
 }
 
 type BatchScoreInput struct {
-	MatchupID      uuid.UUID `form:"matchup_id" binding:"required"`
+	MatchupID      string `form:"matchup_id" binding:"required"`
 	RawMatchesList string    `form:"raw_matches_list" binding:"required"`
 }
 
@@ -87,8 +87,14 @@ func (h *Handler) ScoresSingle(c *gin.Context) {
 		return
 	}
 
+	match_id, err := uuid.Parse(input.MatchupID)
+	if err != nil {
+		c.Redirect(http.StatusSeeOther, fmt.Sprintf("/scores?matchup_id=%s&error=%s", input.MatchupID, err.Error()))
+		return
+	}
+
 	// Validate match exists and player is in match
-	match, err := h.queries.GetMatch(c.Request.Context(), input.MatchupID)
+	match, err := h.queries.GetMatch(c.Request.Context(), match_id)
 	if err != nil {
 		c.Redirect(http.StatusSeeOther, "/scores?error=Match not found")
 		return
@@ -132,7 +138,7 @@ func (h *Handler) ScoresSingle(c *gin.Context) {
 
 	// Save score
 	err = h.queries.CreateScore(c.Request.Context(), database.CreateScoreParams{
-		MatchID:     input.MatchupID,
+		MatchID:     match_id,
 		GameID:      uuid.New(),
 		Winner:      input.WinnerInitials,
 		WinnerScore: int16(winnerScore),
@@ -156,8 +162,14 @@ func (h *Handler) ScoresBatch(c *gin.Context) {
 		return
 	}
 
+	match_id, err := uuid.Parse(input.MatchupID)
+	if err != nil {
+		c.Redirect(http.StatusSeeOther, fmt.Sprintf("/scores?matchup_id=%s&error=%s", input.MatchupID, err.Error()))
+		return
+	}
+
 	// Validate match exists
-	match, err := h.queries.GetMatch(c.Request.Context(), input.MatchupID)
+	match, err := h.queries.GetMatch(c.Request.Context(), match_id)
 	if err != nil {
 		c.Redirect(http.StatusSeeOther, "/scores?error=Match not found")
 		return
@@ -215,7 +227,7 @@ func (h *Handler) ScoresBatch(c *gin.Context) {
 
 		// Save score
 		h.queries.CreateScore(context.Background(), database.CreateScoreParams{
-			MatchID:     input.MatchupID,
+			MatchID:     match_id,
 			GameID:      uuid.New(),
 			Winner:      winner,
 			WinnerScore: int16(winnerScore),
