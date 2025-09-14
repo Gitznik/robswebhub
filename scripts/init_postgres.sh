@@ -7,10 +7,10 @@ if ! [ -x "$(command -v psql)" ]; then
   exit 1
 fi
 
-if ! [ -x "$(command -v sqlx)" ]; then
-  echo >&2 "Error: sqlx is not installed."
+if ! [ -x "$(command -v migrate)" ]; then
+  echo >&2 "Error: migrate is not installed."
   echo >&2 "Use:"
-  echo >&2 "    cargo install --version='~0.6' sqlx-cli --no-default-features --features rustls,postgres"
+  echo >&2 "    go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest"
   echo >&2 "to install it."
   exit 1
 fi
@@ -44,7 +44,7 @@ then
       -p "${DB_PORT}":5432 \
       -d \
       --name "postgres_$(date '+%s')" \
-      postgres -N 1000
+      postgres:16-alpine -N 1000
       # ^ Increased maximum number of connections for testing purposes
 fi
 
@@ -56,11 +56,17 @@ done
 
 >&2 echo "Postgres is up and running on port ${DB_PORT} - running migrations now!"
 
-export DATABASE_URL="postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
-sqlx database create
-sqlx migrate run
+export DATABASE_URL="postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable"
 
-psql $DATABASE_URL -c "INSERT INTO matches(id, player_1, player_2, created_at) VALUES ('b13a16d8-c46e-4921-83f2-eec9675fce74', 'P1', 'P2', now());"
-psql $DATABASE_URL -c "INSERT INTO scores(match_id, game_id, winner, created_at, winner_score, loser_score, played_at) VALUES ('b13a16d8-c46e-4921-83f2-eec9675fce74', 'b13a16d8-c46e-4921-83f2-eec9675fce74', 'P1', now(), 2, 1, now());"
+# Create database if it doesn't exist
+PGPASSWORD="${DB_PASSWORD}" psql -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -tc "SELECT 1 FROM pg_database WHERE datname = '${DB_NAME}'" | grep -q 1 || \
+  PGPASSWORD="${DB_PASSWORD}" psql -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -c "CREATE DATABASE ${DB_NAME}"
 
->&2 echo "Postgres has been migrated, ready to go!"
+# Run migrations
+migrate -path migrations -database "${DATABASE_URL}" up
+
+# Seed with example data
+psql $DATABASE_URL -c "INSERT INTO matches(id, player_1, player_2, created_at) VALUES ('b13a16d8-c46e-4921-83f2-eec9675fce74', 'P1', 'P2', now()) ON CONFLICT DO NOTHING;"
+psql $DATABASE_URL -c "INSERT INTO scores(match_id, game_id, winner, created_at, winner_score, loser_score, played_at) VALUES ('b13a16d8-c46e-4921-83f2-eec9675fce74', 'b13a16d8-c46e-4921-83f2-eec9675fce75', 'P1', now(), 2, 1, now()) ON CONFLICT DO NOTHING;"
+
+>&2 echo "Postgres has been migrated and seeded, ready to go!"
