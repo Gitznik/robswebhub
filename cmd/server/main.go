@@ -18,6 +18,7 @@ import (
 )
 
 func main() {
+	log.Print("Starting up!")
 
 	// Load configuration
 	cfg, err := config.Load()
@@ -26,30 +27,33 @@ func main() {
 	}
 
 	if err := sentry.Init(sentry.ClientOptions{
-		Dsn:			cfg.Telemetry.SentryDSN,
-		EnableTracing:    true,
-		TracesSampleRate: 1.0,
-		EnableLogs:       true,
-		Environment:      cfg.Application.Environment,
+		Dsn:                cfg.Telemetry.SentryDSN,
+		EnableTracing:      true,
+		TracesSampleRate:   1.0,
+		EnableLogs:         true,
+		Environment:        cfg.Application.Environment,
 		IgnoreTransactions: []string{"HEAD /"},
 	}); err != nil {
 		log.Fatalf("Sentry initialization failed: %v\n", err)
 	}
+	log.Print("Started Sentry")
 	defer sentry.Flush(2 * time.Second)
 
 	ctx := context.Background()
-	logger := sentry.NewLogger(ctx)
+	// logger := sentry.NewLogger(ctx)
 	// Connect to database
 	db, err := database.Connect(cfg.Database.ConnectionString)
 	if err != nil {
-		logger.Fatal().Emitf("Failed to connect to database: %v", err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	defer db.Close()
+	log.Print("Established database connection")
 
 	// Run migrations
 	if err := database.RunMigrations(cfg.Database.ConnectionString); err != nil {
-		logger.Fatal().Emitf("Failed to run migrations: %v", err)
+		log.Fatalf("Failed to run migrations: %v", err)
 	}
+	log.Print("Ran migrations")
 
 	// Create queries instance
 	queries := database.New(db)
@@ -81,10 +85,10 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		logger.Fatal().Emitf("Server forced to shutdown: %v", err)
+		log.Fatalf("Server forced to shutdown: %v", err)
 	}
 
-	logger.Info().Emit("Server exiting")
+	log.Print("Server exiting")
 }
 
 func setupRouter(cfg *config.Config, queries *database.Queries) *gin.Engine {

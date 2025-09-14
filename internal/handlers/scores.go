@@ -20,14 +20,14 @@ import (
 
 type ScoreInput struct {
 	MatchupID      string `form:"matchup_id" binding:"required"`
-	WinnerInitials string    `form:"winner_initials" binding:"required"`
-	Score          string    `form:"score" binding:"required"`
-	PlayedAt       string    `form:"played_at" binding:"required"`
+	WinnerInitials string `form:"winner_initials" binding:"required"`
+	Score          string `form:"score" binding:"required"`
+	PlayedAt       string `form:"played_at" binding:"required"`
 }
 
 type BatchScoreInput struct {
 	MatchupID      string `form:"matchup_id" binding:"required"`
-	RawMatchesList string    `form:"raw_matches_list" binding:"required"`
+	RawMatchesList string `form:"raw_matches_list" binding:"required"`
 }
 
 func (h *Handler) ScoresIndex(c *gin.Context) {

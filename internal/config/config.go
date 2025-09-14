@@ -12,12 +12,12 @@ import (
 type Config struct {
 	Application ApplicationConfig `mapstructure:"application"`
 	Database    DatabaseConfig    `mapstructure:"database"`
-	Telemetry Telemetry `mapstructure:"telemetry"`
+	Telemetry   Telemetry         `mapstructure:"telemetry"`
 }
 
 type ApplicationConfig struct {
-	Host string `mapstructure:"host"`
-	Port int    `mapstructure:"port"`
+	Host        string `mapstructure:"host"`
+	Port        int    `mapstructure:"port"`
 	Environment string `mapstructure:"environment"`
 }
 
