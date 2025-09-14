@@ -280,7 +280,7 @@ fly deploy
 
 4. **Hot Reload**: Use `just dev` for automatic reloading during development
 
-5. **Quick Commands**: 
+5. **Quick Commands**:
    - `just start` - Start everything (DB, migrations, seed, dev server)
    - `just quick` - Quickly rebuild and run after changes
    - `just check` - Run all pre-commit checks (fmt, lint, test)

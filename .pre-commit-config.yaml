@@ -1,0 +1,87 @@
+# .pre-commit-config.yaml (Simplified version)
+# This is a simpler alternative that ensures code generation happens first
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: ['--allow-multiple-documents']
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # All Go checks in one local hook to ensure proper ordering
+  - repo: local
+    hooks:
+      # First: Always generate code
+      - id: generate-code
+        name: Generate code (templ & sqlc)
+        entry: bash -c 'templ generate && sqlc generate'
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      # Then: Format code
+      - id: go-fmt
+        name: Format Go code
+        entry: bash -c 'gofmt -l -w . && goimports -w .'
+        language: system
+        types: [go]
+        pass_filenames: false
+
+      # Then: Format templ files
+      - id: templ-fmt
+        name: Format templ files
+        entry: bash -c 'templ fmt .'
+        language: system
+        pass_filenames: false
+        files: '\.templ$'
+
+      # Then: Check and tidy modules
+      - id: go-mod-tidy
+        name: Tidy go modules
+        entry: bash -c 'go mod tidy'
+        language: system
+        pass_filenames: false
+
+      # Then: Run go vet
+      - id: go-vet
+        name: Run go vet
+        entry: bash -c 'go vet ./...'
+        language: system
+        pass_filenames: false
+        types: [go]
+
+      # Finally: Run linter if available
+      - id: golangci-lint
+        name: Run golangci-lint
+        entry: bash -c 'if command -v golangci-lint &> /dev/null; then golangci-lint run; else echo "golangci-lint not installed, skipping..."; fi'
+        language: system
+        pass_filenames: false
+        types: [go]
+
+      # Check that generated files are staged
+      - id: check-generated-files
+        name: Check generated files are staged
+        entry: bash -c 'git add *_templ.go internal/database/*.sql.go internal/database/db.go internal/database/models.go internal/database/querier.go internal/database/copyfrom.go 2>/dev/null || true'
+        language: system
+        pass_filenames: false
+        always_run: true
+
+# Exclude generated files from direct checks
+exclude: |
+  (?x)^(
+    vendor/.*|
+    .*\.pb\.go$|
+    .*_templ\.go$|
+    internal/database/(db|models|querier|copyfrom)\.go$|
+    go\.sum$|
+    tmp/.*|
+    bin/.*
+  )

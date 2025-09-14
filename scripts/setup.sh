@@ -30,6 +30,9 @@ go install github.com/a-h/templ/cmd/templ@latest
 go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 go install github.com/air-verse/air@latest
+go install golang.org/x/tools/cmd/goimports@latest
+go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 echo "✅ Go tools installed"
 echo ""
 

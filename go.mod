@@ -6,6 +6,8 @@ toolchain go1.24.3
 
 require (
 	github.com/a-h/templ v0.3.943
+	github.com/getsentry/sentry-go v0.35.1
+	github.com/getsentry/sentry-go/gin v0.35.1
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-echarts/go-echarts/v2 v2.3.3
 	github.com/golang-migrate/migrate/v4 v4.19.0
@@ -22,8 +24,6 @@ require (
 	github.com/chenzhuoyu/iasm v0.9.1 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
-	github.com/getsentry/sentry-go v0.35.1 // indirect
-	github.com/getsentry/sentry-go/gin v0.35.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect

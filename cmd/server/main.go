@@ -2,14 +2,15 @@ package main
 
 import (
 	"context"
-	"github.com/getsentry/sentry-go"
-	sentrygin "github.com/getsentry/sentry-go/gin"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/getsentry/sentry-go"
+	sentrygin "github.com/getsentry/sentry-go/gin"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gitznik/robswebhub/internal/config"
@@ -39,8 +40,6 @@ func main() {
 	log.Print("Started Sentry")
 	defer sentry.Flush(2 * time.Second)
 
-	ctx := context.Background()
-	// logger := sentry.NewLogger(ctx)
 	// Connect to database
 	db, err := database.Connect(cfg.Database.ConnectionString)
 	if err != nil {

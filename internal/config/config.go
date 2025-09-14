@@ -56,8 +56,12 @@ func Load() (*Config, error) {
 
 	// Bind specific environment variables that don't follow the APP_ prefix pattern
 	// or have different naming conventions
-	viper.BindEnv("database.connection_string", "DATABASE_URL")
-	viper.BindEnv("telemetry.sentry_dsn", "TELEMETRY_SENTRY_DSN")
+	if err := viper.BindEnv("database.connection_string", "DATABASE_URL"); err != nil {
+		return nil, fmt.Errorf("Failed to bind DATABASE_URL")
+	}
+	if err := viper.BindEnv("telemetry.sentry_dsn", "TELEMETRY_SENTRY_DSN"); err != nil {
+		return nil, fmt.Errorf("Failed to bind TELEMETRY_SENTRY_DSN")
+	}
 
 	var config Config
 	if err := viper.Unmarshal(&config); err != nil {
