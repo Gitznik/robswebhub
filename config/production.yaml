@@ -1,0 +1,8 @@
+application:
+  host: "0.0.0.0"
+  port: 8080
+  environment: prod
+database:
+  connection_string: ""  # Will be overridden by DATABASE_URL env var
+telemetry:
+  sentry_dsn: "" # Will be overridden by TELEMETRY_SENTRY_DSN env var

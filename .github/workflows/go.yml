@@ -1,0 +1,145 @@
+name: General Checks
+
+on: [push, pull_request]
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Install tools
+        run: |
+          go install github.com/a-h/templ/cmd/templ@latest
+          go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+
+      - name: Generate code
+        run: |
+          templ generate
+          sqlc generate
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run go build
+        run: go build -v ./...
+
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: robswebhub_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Install tools
+        run: |
+          go install github.com/a-h/templ/cmd/templ@latest
+          go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+          go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+      - name: Generate code
+        run: |
+          templ generate
+          sqlc generate
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: postgres://postgres:password@localhost:5432/robswebhub_test?sslmode=disable
+        run: |
+          migrate -path migrations -database "$DATABASE_URL" up
+
+      - name: Run tests
+        env:
+          DATABASE_URL: postgres://postgres:password@localhost:5432/robswebhub_test?sslmode=disable
+        run: go test -v -race -coverprofile=coverage.out ./...
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.out
+          flags: unittests
+          name: codecov-umbrella
+        continue-on-error: true
+
+  lints:
+    name: Lints
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Install tools
+        run: |
+          go install github.com/a-h/templ/cmd/templ@latest
+          go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+
+      - name: Generate code
+        run: |
+          templ generate
+          sqlc generate
+
+      - name: Run go fmt
+        run: |
+          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+            echo "The following files are not formatted:"
+            gofmt -s -l .
+            exit 1
+          fi
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          args: --timeout=5m
+
+      - name: Check templ formatting
+        run: |
+          templ fmt .
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "templ files are not formatted. Please run 'templ fmt .'"
+            git diff
+            exit 1
+          fi
+
+      - name: Verify go mod tidy
+        run: |
+          go mod tidy
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "go.mod or go.sum is not tidy. Please run 'go mod tidy'"
+            git diff
+            exit 1
+          fi

@@ -1,0 +1,38 @@
+package layouts
+
+templ Base(title string) {
+	<!DOCTYPE html>
+	<html lang="en" data-theme="dark">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<script src="/static/js/htmx.min.js"></script>
+			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"/>
+			<title>{ title } - RobsWebHub</title>
+			<link rel="icon" type="image/x-icon" href="/images/favicon.ico"/>
+		</head>
+		<body>
+			<nav class="container-fluid">
+				<ul>
+					<li>
+						<a href="/" class="contrast"><strong>RobsWebHub</strong></a>
+					</li>
+				</ul>
+			</nav>
+			{ children... }
+			<footer class="container-fluid">
+				<div>
+					<p>Author: <a href="mailto:dev@robswebhub.net">Robert Offner</a></p>
+				</div>
+				<div>
+					<a href="https://github.com/Gitznik">
+						<img src="/images/github-mark-white.png" alt="Github Icon" style="width:42px;height:42px;"/>
+					</a>
+					<a href="https://www.linkedin.com/in/robert-offner-065993191">
+						<img src="/images/LI-In-Bug.png" alt="LinkedIn Icon" style="width:50px;height:42px;"/>
+					</a>
+				</div>
+			</footer>
+		</body>
+	</html>
+}

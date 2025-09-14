@@ -1,3 +1,68 @@
-/target
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+tmp/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.html
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# Environment variables
 .env
-/images/match_plots/*
+.env.local
+.env.*.local
+
+# IDE specific files
+.idea/
+*.swp
+*.swo
+*~
+.vscode/
+*.iml
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Air tmp directory
+tmp/
+
+# Just command runner
+.just/
+
+# Generated files
+*_templ.go
+*_templ.txt
+internal/database/*.sql.go
+internal/database/db.go
+internal/database/models.go
+internal/database/querier.go
+
+# Static files that should be generated
+static/images/match_plots/*.png
+
+# Database
+*.db
+*.sqlite
+
+# Logs
+*.log
+
+# Fly.io
+fly.toml.local
+
+# Docker
+docker-compose.override.yml

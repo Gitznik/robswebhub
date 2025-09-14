@@ -1,0 +1,99 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/gitznik/robswebhub/internal/database"
+	"github.com/gitznik/robswebhub/internal/templates/layouts"
+)
+
+templ Scores(match *database.GetMatchRow, scores []database.GetMatchScoresRow, recentScores []database.GetRecentScoresRow, errorMsg string) {
+	@layouts.Base("Scorekeeper") {
+		<main class="container">
+			if errorMsg != "" {
+				<section class="container">
+					<p><i><mark>{ errorMsg }</mark></i></p>
+				</section>
+			}
+			<h1>Scorekeeper</h1>
+			<div>
+				<form action="/scores" method="get">
+					<fieldset role="group">
+						<input type="text" id="matchup_id" name="matchup_id" placeholder="Matchup Id" required/>
+						<button type="submit">Go</button>
+					</fieldset>
+				</form>
+			</div>
+			if match == nil {
+				<div>You can find an example match <a href="/scores?matchup_id=b13a16d8-c46e-4921-83f2-eec9675fce74">here</a>.</div>
+			} else {
+				<h1>Match { match.ID.String() }</h1>
+				@scoreEntryForm(match.ID.String())
+				@matchResults(match, scores, recentScores)
+			}
+		</main>
+	}
+}
+
+templ scoreEntryForm(matchID string) {
+	<div>
+		<h2>Add Score</h2>
+		<div class="grid">
+			<button
+				hx-get="/scores/single-form"
+				hx-trigger="load,click"
+				hx-target="#score_entry_form"
+				hx-vals={ fmt.Sprintf(`{"matchup_id":"%s"}`, matchID) }
+				hx-swap="outerHTML ignoreTitle:true"
+			>
+				Single Result Entry
+			</button>
+			<button
+				hx-get="/scores/batch-form"
+				hx-target="#score_entry_form"
+				hx-vals={ fmt.Sprintf(`{"matchup_id":"%s"}`, matchID) }
+				hx-swap="outerHTML ignoreTitle:true"
+			>
+				Multiple Result Entry
+			</button>
+		</div>
+		<p></p>
+		<div id="score_entry_form"></div>
+	</div>
+}
+
+templ matchResults(match *database.GetMatchRow, scores []database.GetMatchScoresRow, recentScores []database.GetRecentScoresRow) {
+	<h2>Scores</h2>
+	if len(scores) > 0 {
+		<figure align="center">
+			<iframe
+				src={ fmt.Sprintf("/scores/chart/%s", match.ID.String()) }
+				width="660"
+				height="500"
+				frameborder="0"
+			></iframe>
+		</figure>
+	}
+	<h3>Most recent results</h3>
+	<table role="grid">
+		<thead>
+			<tr>
+				<th scope="col">#</th>
+				<th scope="col">Winner</th>
+				<th scope="col">Winner Score</th>
+				<th scope="col">Loser Score</th>
+				<th scope="col">Played At</th>
+			</tr>
+		</thead>
+		<tbody>
+			for i, score := range recentScores {
+				<tr>
+					<th scope="row">{ fmt.Sprintf("%d", i+1) }</th>
+					<td>{ score.Winner }</td>
+					<td>{ fmt.Sprintf("%d", score.WinnerScore) }</td>
+					<td>{ fmt.Sprintf("%d", score.LoserScore) }</td>
+					<td>{ score.PlayedAt.Format("2006-01-02") }</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
