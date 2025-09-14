@@ -31,6 +31,7 @@ func main() {
 		TracesSampleRate: 1.0,
 		EnableLogs:       true,
 		Environment:      cfg.Application.Environment,
+		IgnoreTransactions: []string{"HEAD /"},
 	}); err != nil {
 		log.Fatalf("Sentry initialization failed: %v\n", err)
 	}

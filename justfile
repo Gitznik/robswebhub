@@ -112,15 +112,15 @@ docker: docker-build docker-run
 
 # Start application with docker-compose
 compose-up:
-    docker-compose up -d
+    docker compose up -d
 
 # Stop application with docker-compose
 compose-down:
-    docker-compose down
+    docker compose down
 
 # View docker-compose logs
 compose-logs:
-    docker-compose logs -f
+    docker compose logs -f
 
 # Restart docker-compose services
 compose-restart: compose-down compose-up
@@ -256,11 +256,6 @@ outdated:
 # Print current version
 version:
     @git describe --tags --always --dirty
-
-# Create a new release tag
-release version:
-    git tag -a v{{version}} -m "Release version {{version}}"
-    git push origin v{{version}}
 
 # Help - show all available commands with descriptions
 help:
