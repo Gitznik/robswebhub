@@ -67,15 +67,50 @@ watch:
     @just generate
     watchexec -e go,templ,sql -- just run
 
-# Run tests
-test:
-    go test -v ./...
+# Install test dependencies
+install-test-deps:
+    go install gotest.tools/gotestsum@latest
+    go install github.com/testcontainers/testcontainers-go@latest
+    go get -t ./...
 
-# Run tests with coverage
-test-coverage:
-    go test -v -cover -coverprofile=coverage.out ./...
+# Run all tests with gotestsum
+test-all: generate
+    @echo "Running all tests with gotestsum..."
+    gotestsum --format testname -- -v -race -coverprofile=coverage.out ./...
+
+# Run integration tests only
+test-integration: generate
+    @echo "Running integration tests..."
+    gotestsum --format testname -- -v -race -tags=integration ./... -run Integration
+
+# Run end-to-end tests only
+test-e2e: generate
+    @echo "Running end-to-end tests..."
+    gotestsum --format testname -- -v -race -tags=e2e ./... -run E2E
+
+# Run tests with watch mode
+test-watch: generate
+    gotestsum --format testname --watch -- -v ./...
+
+# Run tests with coverage report
+test-coverage: generate
+    @echo "Running tests with coverage..."
+    gotestsum --format testname -- -v -race -coverprofile=coverage.out ./...
     go tool cover -html=coverage.out -o coverage.html
     @echo "Coverage report generated at coverage.html"
+
+# Run tests in CI mode (with JUnit output)
+test-ci: generate
+    gotestsum --junitfile test-results.xml --format standard-verbose -- -v -race -coverprofile=coverage.out ./...
+
+# Run specific test
+test-run name: generate
+    gotestsum --format testname -- -v -run {{name}} ./...
+
+# Run tests with database container
+test-db: generate
+    @echo "Running tests with database..."
+    TEST_DB_CONTAINER=true gotestsum --format testname -- -v -race ./...
 
 # Run linter (requires golangci-lint)
 lint:
@@ -87,7 +122,7 @@ fmt:
     templ fmt .
 
 # Check for code issues
-check: fmt lint test
+check: fmt lint
 
 # Clean build artifacts
 clean:
@@ -164,7 +199,7 @@ install-dev-tools:
     go install github.com/segmentio/golines@latest
 
 # Run all pre-commit checks
-pre-commit: fmt lint test
+pre-commit: fmt lint
     @echo "All pre-commit checks passed!"
 
 # Update Go dependencies

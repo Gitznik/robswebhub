@@ -117,13 +117,13 @@ func (h *Handler) ScoresSingle(c *gin.Context) {
 	}
 
 	winnerScore, err := strconv.ParseInt(scoreParts[0], 10, 16)
-	if err != nil {
+	if err != nil || winnerScore < 0 {
 		c.Redirect(http.StatusSeeOther, fmt.Sprintf("/scores?matchup_id=%s&error=Invalid winner score", input.MatchupID))
 		return
 	}
 
 	loserScore, err := strconv.ParseInt(scoreParts[1], 10, 16)
-	if err != nil {
+	if err != nil || loserScore < 0 {
 		c.Redirect(http.StatusSeeOther, fmt.Sprintf("/scores?matchup_id=%s&error=Invalid loser score", input.MatchupID))
 		return
 	}
