@@ -13,6 +13,7 @@ type Config struct {
 	Application ApplicationConfig `mapstructure:"application"`
 	Database    DatabaseConfig    `mapstructure:"database"`
 	Telemetry   Telemetry         `mapstructure:"telemetry"`
+	Auth        AuthConfig        `mapstructure:"auth"`
 }
 
 type ApplicationConfig struct {
@@ -27,6 +28,13 @@ type DatabaseConfig struct {
 
 type Telemetry struct {
 	SentryDSN string `mapstructure:"sentry_dsn"`
+}
+
+type AuthConfig struct {
+	Auth0Domain       string `mapstructure:"auth_0_domain"`
+	Auth0ClientId     string `mapstructure:"auth_0_client_id"`
+	Auth0ClientSecret string `mapstructure:"auth_0_client_secret"`
+	Auth0CallbackURL  string `mapstructure:"auth_0_callback_url"`
 }
 
 func Load() (*Config, error) {
@@ -61,6 +69,18 @@ func Load() (*Config, error) {
 	}
 	if err := viper.BindEnv("telemetry.sentry_dsn", "TELEMETRY_SENTRY_DSN"); err != nil {
 		return nil, fmt.Errorf("Failed to bind TELEMETRY_SENTRY_DSN")
+	}
+	if err := viper.BindEnv("auth.auth_0_domain", "AUTH0_DOMAIN"); err != nil {
+		return nil, fmt.Errorf("Failed to bind AUTH0_DOMAIN")
+	}
+	if err := viper.BindEnv("auth.auth_0_client_id", "AUTH0_CLIENT_ID"); err != nil {
+		return nil, fmt.Errorf("Failed to bind AUTH0_CLIENT_ID")
+	}
+	if err := viper.BindEnv("auth.auth_0_client_secret", "AUTH0_CLIENT_SECRET"); err != nil {
+		return nil, fmt.Errorf("Failed to bind AUTH0_CLIENT_SECRET")
+	}
+	if err := viper.BindEnv("auth.auth_0_callback_url", "AUTH0_CALLBACK_URL"); err != nil {
+		return nil, fmt.Errorf("Failed to bind AUTH0_CALLBACK_URL")
 	}
 
 	var config Config

@@ -1,25 +1,31 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gitznik/robswebhub/internal/config"
 	"github.com/gitznik/robswebhub/internal/database"
+	"github.com/gitznik/robswebhub/internal/middleware"
 	"github.com/gitznik/robswebhub/internal/templates/pages"
 )
 
 type Handler struct {
 	queries *database.Queries
+	cfg     *config.Config
 }
 
-func New(queries *database.Queries) *Handler {
+func New(queries *database.Queries, cfg *config.Config) *Handler {
 	return &Handler{
 		queries: queries,
+		cfg:     cfg,
 	}
 }
 
 func (h *Handler) Home(c *gin.Context) {
-	component := pages.Home()
+	component := pages.Home(c.GetBool(middleware.LoginKey))
+	log.Printf("Home handler says is logged in: %v", c.GetBool(middleware.LoginKey))
 	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
 		c.String(http.StatusInternalServerError, "Failed to render page")
 		return

@@ -9,49 +9,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gin-gonic/gin"
-	"github.com/gitznik/robswebhub/internal/database"
-	"github.com/gitznik/robswebhub/internal/handlers"
 	"github.com/gitznik/robswebhub/internal/testhelpers"
 	"github.com/google/uuid"
 )
-
-func setupTestRouter(queries *database.Queries) *gin.Engine {
-	gin.SetMode(gin.TestMode)
-	router := gin.New()
-	router.Use(gin.Recovery())
-
-	// Static files
-	router.Static("/static", "../../static")
-
-	// Create handlers
-	h := handlers.New(queries)
-
-	// Routes
-	router.GET("/", h.Home)
-	router.HEAD("/", h.HomeHead)
-	router.GET("/about", h.About)
-
-	// Scores routes
-	scores := router.Group("/scores")
-	{
-		scores.GET("", h.ScoresIndex)
-		scores.POST("/single", h.ScoresSingle)
-		scores.POST("/batch", h.ScoresBatch)
-		scores.GET("/single-form", h.SingleScoreForm)
-		scores.GET("/batch-form", h.BatchScoreForm)
-		scores.GET("/chart/:id", h.ScoresChart)
-	}
-
-	return router
-}
 
 func TestIntegration_HomePage(t *testing.T) {
 	// Setup
 	db := testhelpers.SetupTestDB(t)
 	defer db.Cleanup()
 
-	router := setupTestRouter(db.Queries)
+	router := testhelpers.SetupTestRouter(db.Queries)
 
 	// Test GET /
 	t.Run("GET / returns home page", func(t *testing.T) {
@@ -82,7 +49,7 @@ func TestIntegration_AboutPage(t *testing.T) {
 	db := testhelpers.SetupTestDB(t)
 	defer db.Cleanup()
 
-	router := setupTestRouter(db.Queries)
+	router := testhelpers.SetupTestRouter(db.Queries)
 
 	t.Run("GET /about returns about page", func(t *testing.T) {
 		req, _ := http.NewRequest("GET", "/about", nil)
@@ -101,7 +68,7 @@ func TestIntegration_ScoresIndex(t *testing.T) {
 	defer db.Cleanup()
 
 	testData := db.SeedTestData(t)
-	router := setupTestRouter(db.Queries)
+	router := testhelpers.SetupTestRouter(db.Queries)
 
 	t.Run("GET /scores without matchup_id", func(t *testing.T) {
 		req, _ := http.NewRequest("GET", "/scores", nil)
@@ -150,7 +117,7 @@ func TestIntegration_SingleScoreSubmission(t *testing.T) {
 	defer db.Cleanup()
 
 	testData := db.SeedTestData(t)
-	router := setupTestRouter(db.Queries)
+	router := testhelpers.SetupTestRouter(db.Queries)
 
 	t.Run("POST /scores/single with valid data", func(t *testing.T) {
 		formData := url.Values{
@@ -223,7 +190,7 @@ func TestIntegration_BatchScoreSubmission(t *testing.T) {
 	defer db.Cleanup()
 
 	testData := db.SeedTestData(t)
-	router := setupTestRouter(db.Queries)
+	router := testhelpers.SetupTestRouter(db.Queries)
 
 	t.Run("POST /scores/batch with valid data", func(t *testing.T) {
 		batchData := fmt.Sprintf(`%s %s 2:1
@@ -281,7 +248,7 @@ func TestIntegration_ScoreForms(t *testing.T) {
 	defer db.Cleanup()
 
 	testData := db.SeedTestData(t)
-	router := setupTestRouter(db.Queries)
+	router := testhelpers.SetupTestRouter(db.Queries)
 
 	t.Run("GET /scores/single-form", func(t *testing.T) {
 		req, _ := http.NewRequest("GET", fmt.Sprintf("/scores/single-form?matchup_id=%s", testData.MatchID), nil)
@@ -310,7 +277,7 @@ func TestIntegration_ScoresChart(t *testing.T) {
 	defer db.Cleanup()
 
 	testData := db.SeedTestData(t)
-	router := setupTestRouter(db.Queries)
+	router := testhelpers.SetupTestRouter(db.Queries)
 
 	t.Run("GET /scores/chart/:id with valid match", func(t *testing.T) {
 		req, _ := http.NewRequest("GET", fmt.Sprintf("/scores/chart/%s", testData.MatchID), nil)

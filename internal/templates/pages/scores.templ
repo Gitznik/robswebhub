@@ -6,8 +6,8 @@ import (
 	"github.com/gitznik/robswebhub/internal/templates/layouts"
 )
 
-templ Scores(match *database.GetMatchRow, scores []database.GetMatchScoresRow, recentScores []database.GetRecentScoresRow, errorMsg string) {
-	@layouts.Base("Scorekeeper") {
+templ Scores(match *database.GetMatchRow, scores []database.GetMatchScoresRow, recentScores []database.GetRecentScoresRow, errorMsg string, isLoggedIn bool) {
+	@layouts.Base("Scorekeeper", isLoggedIn) {
 		<main class="container">
 			if errorMsg != "" {
 				<section class="container">

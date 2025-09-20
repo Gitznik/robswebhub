@@ -22,26 +22,10 @@ repos:
       # First: Always generate code
       - id: generate-code
         name: Generate code (templ & sqlc)
-        entry: bash -c 'templ generate && sqlc generate'
+        entry: bash -c 'templ generate && sqlc generate && templ fmt . && gofmt -l -w . && goimports -w .'
         language: system
         pass_filenames: false
         always_run: true
-
-      # Then: Format code
-      - id: go-fmt
-        name: Format Go code
-        entry: bash -c 'gofmt -l -w . && goimports -w .'
-        language: system
-        types: [go]
-        pass_filenames: false
-
-      # Then: Format templ files
-      - id: templ-fmt
-        name: Format templ files
-        entry: bash -c 'templ fmt .'
-        language: system
-        pass_filenames: false
-        files: '\.templ$'
 
       # Then: Check and tidy modules
       - id: go-mod-tidy

@@ -1,6 +1,6 @@
 package layouts
 
-templ Base(title string) {
+templ Base(title string, isLoggedIn bool) {
 	<!DOCTYPE html>
 	<html lang="en" data-theme="dark">
 		<head>
@@ -16,6 +16,15 @@ templ Base(title string) {
 				<ul>
 					<li>
 						<a href="/" class="contrast"><strong>RobsWebHub</strong></a>
+					</li>
+				</ul>
+				<ul>
+					<li>
+						if isLoggedIn {
+							<a href="/logout" role="button" class="secondary">Logout</a>
+						} else {
+							<a href="/login" role="button" class="secondary">Login</a>
+						}
 					</li>
 				</ul>
 			</nav>

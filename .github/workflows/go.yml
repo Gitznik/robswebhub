@@ -139,19 +139,12 @@ jobs:
         run: |
           go install github.com/a-h/templ/cmd/templ@latest
           go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+          go install golang.org/x/tools/cmd/goimports@latest
 
       - name: Generate code
         run: |
           templ generate
           sqlc generate
-
-      - name: Run go fmt
-        run: |
-          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
-            echo "The following files are not formatted:"
-            gofmt -s -l .
-            exit 1
-          fi
 
       - name: Run go vet
         run: go vet ./...
@@ -165,8 +158,10 @@ jobs:
       - name: Check templ formatting
         run: |
           templ fmt .
+          gofmt -l -w .
+          goimports -w .
           if [ -n "$(git status --porcelain)" ]; then
-            echo "templ files are not formatted. Please run 'templ fmt .'"
+            echo "Files are not formatted."
             git diff
             exit 1
           fi

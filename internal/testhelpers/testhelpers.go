@@ -177,7 +177,7 @@ func setupRouter(cfg *config.Config, queries *database.Queries) *gin.Engine {
 	// Serve static files
 	router.Static("/static", "./static")
 
-	h := handlers.New(queries)
+	h := handlers.New(queries, cfg)
 
 	// Routes
 	router.GET("/", h.Home)

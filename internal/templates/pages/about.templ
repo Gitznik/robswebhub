@@ -2,8 +2,8 @@ package pages
 
 import "github.com/gitznik/robswebhub/internal/templates/layouts"
 
-templ About() {
-	@layouts.Base("About") {
+templ About(isLoggedIn bool) {
+	@layouts.Base("About", isLoggedIn) {
 		<main class="container">
 			<h1>About me</h1>
 			<div class="grid">

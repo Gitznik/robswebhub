@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gitznik/robswebhub/internal/database"
+	"github.com/gitznik/robswebhub/internal/middleware"
 	"github.com/gitznik/robswebhub/internal/templates/components"
 	"github.com/gitznik/robswebhub/internal/templates/pages"
 	"github.com/go-echarts/go-echarts/v2/charts"
@@ -42,7 +43,7 @@ func (h *Handler) ScoresIndex(c *gin.Context) {
 	if matchupIDStr != "" {
 		matchupID, err = uuid.Parse(matchupIDStr)
 		if err != nil {
-			component := pages.Scores(nil, nil, nil, "Invalid matchup ID")
+			component := pages.Scores(nil, nil, nil, "Invalid matchup ID", c.GetBool(middleware.LoginKey))
 			if err := component.Render(c.Request.Context(), c.Writer); err != nil {
 				c.String(http.StatusInternalServerError, "Failed to render page")
 			}
@@ -52,7 +53,7 @@ func (h *Handler) ScoresIndex(c *gin.Context) {
 		// Get match information
 		result, err := h.queries.GetMatch(c.Request.Context(), matchupID)
 		if err != nil {
-			component := pages.Scores(nil, nil, nil, "Match not found")
+			component := pages.Scores(nil, nil, nil, "Match not found", c.GetBool(middleware.LoginKey))
 			if err := component.Render(c.Request.Context(), c.Writer); err != nil {
 				c.String(http.StatusInternalServerError, "Failed to render page")
 			}
@@ -77,7 +78,7 @@ func (h *Handler) ScoresIndex(c *gin.Context) {
 		}
 	}
 
-	component := pages.Scores(match, scores, recentScores, "")
+	component := pages.Scores(match, scores, recentScores, "", c.GetBool(middleware.LoginKey))
 	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
 		c.String(http.StatusInternalServerError, "Failed to render page")
 		return

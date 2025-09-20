@@ -5,10 +5,12 @@ package layouts
 
 //lint:file-ignore SA4006 This context is only used if a nested component is present.
 
-import "github.com/a-h/templ"
-import templruntime "github.com/a-h/templ/runtime"
+import (
+	"github.com/a-h/templ"
+	templruntime "github.com/a-h/templ/runtime"
+)
 
-func Base(title string) templ.Component {
+func Base(title string, isLoggedIn bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -42,7 +44,22 @@ func Base(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " - RobsWebHub</title><link rel=\"icon\" type=\"image/x-icon\" href=\"/images/favicon.ico\"></head><body><nav class=\"container-fluid\"><ul><li><a href=\"/\" class=\"contrast\"><strong>RobsWebHub</strong></a></li></ul></nav>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " - RobsWebHub</title><link rel=\"icon\" type=\"image/x-icon\" href=\"/images/favicon.ico\"></head><body><nav class=\"container-fluid\"><ul><li><a href=\"/\" class=\"contrast\"><strong>RobsWebHub</strong></a></li></ul><ul><li>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if isLoggedIn {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<a href=\"/logout\" role=\"button\" class=\"secondary\">Logout</a>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<a href=\"/login\" role=\"button\" class=\"secondary\">Login</a>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</li></ul></nav>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -50,7 +67,7 @@ func Base(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<footer class=\"container-fluid\"><div><p>Author: <a href=\"mailto:dev@robswebhub.net\">Robert Offner</a></p></div><div><a href=\"https://github.com/Gitznik\"><img src=\"/images/github-mark-white.png\" alt=\"Github Icon\" style=\"width:42px;height:42px;\"></a> <a href=\"https://www.linkedin.com/in/robert-offner-065993191\"><img src=\"/images/LI-In-Bug.png\" alt=\"LinkedIn Icon\" style=\"width:50px;height:42px;\"></a></div></footer></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<footer class=\"container-fluid\"><div><p>Author: <a href=\"mailto:dev@robswebhub.net\">Robert Offner</a></p></div><div><a href=\"https://github.com/Gitznik\"><img src=\"/images/github-mark-white.png\" alt=\"Github Icon\" style=\"width:42px;height:42px;\"></a> <a href=\"https://www.linkedin.com/in/robert-offner-065993191\"><img src=\"/images/LI-In-Bug.png\" alt=\"LinkedIn Icon\" style=\"width:50px;height:42px;\"></a></div></footer></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
