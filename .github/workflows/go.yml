@@ -155,7 +155,7 @@ jobs:
           version: latest
           args: --timeout=5m
 
-      - name: Check templ formatting
+      - name: Check formatting
         run: |
           templ fmt .
           gofmt -l -w .
