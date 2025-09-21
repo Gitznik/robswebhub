@@ -24,7 +24,6 @@ func (h *Handler) Logout(c *gin.Context) {
 		return
 	}
 
-	// FIXME: This does not seem to work
 	scheme := "http"
 	if h.cfg.Application.Environment != "dev" {
 		scheme = "https"

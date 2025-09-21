@@ -31,10 +31,12 @@ type Telemetry struct {
 }
 
 type AuthConfig struct {
-	Auth0Domain       string `mapstructure:"auth_0_domain"`
-	Auth0ClientId     string `mapstructure:"auth_0_client_id"`
-	Auth0ClientSecret string `mapstructure:"auth_0_client_secret"`
-	Auth0CallbackURL  string `mapstructure:"auth_0_callback_url"`
+	Auth0Domain         string `mapstructure:"auth_0_domain"`
+	Auth0ClientId       string `mapstructure:"auth_0_client_id"`
+	Auth0ClientSecret   string `mapstructure:"auth_0_client_secret"`
+	Auth0CallbackURL    string `mapstructure:"auth_0_callback_url"`
+	CookieEncryptionKey string `mapstructure:"cookie_encryption_key"`
+	CookieAuthKey       string `mapstructure:"cookie_auth_key"`
 }
 
 func Load() (*Config, error) {
@@ -81,6 +83,12 @@ func Load() (*Config, error) {
 	}
 	if err := viper.BindEnv("auth.auth_0_callback_url", "AUTH0_CALLBACK_URL"); err != nil {
 		return nil, fmt.Errorf("Failed to bind AUTH0_CALLBACK_URL")
+	}
+	if err := viper.BindEnv("auth.cookie_encryption_key", "COOKIE_ENCRYPTION_KEY"); err != nil {
+		return nil, fmt.Errorf("Failed to bind COOKIE_ENCRYPTION_KEY")
+	}
+	if err := viper.BindEnv("auth.cookie_auth_key", "COOKIE_AUTH_KEY"); err != nil {
+		return nil, fmt.Errorf("Failed to bind COOKIE_AUTH_KEY")
 	}
 
 	var config Config

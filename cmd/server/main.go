@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/gob"
+	"encoding/hex"
 	"log"
 	"net/http"
 	"os"
@@ -111,7 +112,15 @@ func setupRouter(cfg *config.Config, queries *database.Queries, auth *auth.Authe
 	// Setup Auth
 	gob.Register(map[string]interface{}{})
 
-	store := cookie.NewStore([]byte("secret"))
+	session_auth_key, err := hex.DecodeString(cfg.Auth.CookieAuthKey)
+	if err != nil {
+		log.Fatalf("Could not decode auth key")
+	}
+	session_encryption_key, err := hex.DecodeString(cfg.Auth.CookieEncryptionKey)
+	if err != nil {
+		log.Fatalf("Could not decode encryption key")
+	}
+	store := cookie.NewStore(session_auth_key, session_encryption_key)
 	router.Use(sessions.Sessions("auth-session", store))
 	router.Use(middleware.LoginStatus)
 

@@ -6,3 +6,5 @@ database:
   connection_string: "postgres://postgres:password@localhost:5432/robswebhub?sslmode=disable"
 telemetry:
   sentry_dsn: "" # Will be overridden by TELEMETRY_SENTRY_DSN env var
+auth:
+  cookie_auth_key: secret
