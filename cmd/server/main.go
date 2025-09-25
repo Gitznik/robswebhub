@@ -153,10 +153,12 @@ func setupRouter(cfg *config.Config, queries *database.Queries, authenticator *a
 	router.GET("/login", h.MakeLogin(authenticator))
 	router.GET("/logout", h.Logout)
 	router.GET("/callback", h.MakeCallback(authenticator))
-	scoresV2 := router.Group("/scoresV2")
-	scoresV2.Use(middleware.IsAuthenticated)
+	gamekeeper := router.Group("/gamekeeper")
+	gamekeeper.Use(middleware.IsAuthenticated)
 	{
-		scoresV2.GET("", h.ScoresIndex)
+		gamekeeper.GET("", h.GamesIndex)
+		gamekeeper.GET("/signup", h.SignUp)
+		gamekeeper.POST("/signup", h.DoSignUp)
 	}
 
 	return router

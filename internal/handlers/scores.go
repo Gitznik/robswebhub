@@ -33,6 +33,7 @@ type BatchScoreInput struct {
 
 func (h *Handler) ScoresIndex(c *gin.Context) {
 	matchupIDStr := c.Query("matchup_id")
+	redirectError := c.Query("error")
 
 	var matchupID uuid.UUID
 	var match *database.GetMatchRow
@@ -78,7 +79,7 @@ func (h *Handler) ScoresIndex(c *gin.Context) {
 		}
 	}
 
-	component := pages.Scores(match, scores, recentScores, "", c.GetBool(middleware.LoginKey))
+	component := pages.Scores(match, scores, recentScores, redirectError, c.GetBool(middleware.LoginKey))
 	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
 		c.String(http.StatusInternalServerError, "Failed to render page")
 		return

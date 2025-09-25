@@ -46,3 +46,38 @@ func (r iteratorForCreateBulkScores) Err() error {
 func (q *Queries) CreateBulkScores(ctx context.Context, arg []CreateBulkScoresParams) (int64, error) {
 	return q.db.CopyFrom(ctx, []string{"scores"}, []string{"match_id", "game_id", "winner", "winner_score", "loser_score", "created_at", "played_at"}, &iteratorForCreateBulkScores{rows: arg})
 }
+
+// iteratorForCreateGameMembership implements pgx.CopyFromSource.
+type iteratorForCreateGameMembership struct {
+	rows                 []CreateGameMembershipParams
+	skippedFirstNextCall bool
+}
+
+func (r *iteratorForCreateGameMembership) Next() bool {
+	if len(r.rows) == 0 {
+		return false
+	}
+	if !r.skippedFirstNextCall {
+		r.skippedFirstNextCall = true
+		return true
+	}
+	r.rows = r.rows[1:]
+	return len(r.rows) > 0
+}
+
+func (r iteratorForCreateGameMembership) Values() ([]interface{}, error) {
+	return []interface{}{
+		r.rows[0].GameID,
+		r.rows[0].PlayerID,
+		r.rows[0].Role,
+		r.rows[0].CreatedAt,
+	}, nil
+}
+
+func (r iteratorForCreateGameMembership) Err() error {
+	return nil
+}
+
+func (q *Queries) CreateGameMembership(ctx context.Context, arg []CreateGameMembershipParams) (int64, error) {
+	return q.db.CopyFrom(ctx, []string{"games_membership"}, []string{"game_id", "player_id", "role", "created_at"}, &iteratorForCreateGameMembership{rows: arg})
+}

@@ -2,9 +2,14 @@ package pages
 
 import "github.com/gitznik/robswebhub/internal/templates/layouts"
 
-templ Home(isLoggedIn bool) {
+templ Home(errorMsg string, isLoggedIn bool) {
 	@layouts.Base("Home", isLoggedIn) {
 		<main class="container">
+			if errorMsg != "" {
+				<section class="container">
+					<p><i><mark>{ errorMsg }</mark></i></p>
+				</section>
+			}
 			<h1>Hello, and Welcome to RobsWebHub!</h1>
 			<p>Hi, I'm Rob. I'm collecting and showcasing some of my projects here.</p>
 			<p><a href="/about" role="button">More about me</a></p>
@@ -16,6 +21,13 @@ templ Home(isLoggedIn bool) {
 						<p>My girlfriend complained that I'm always winning in a card game we regularly play. I wrote this tool to prove her wrong.</p>
 					</div>
 					<div><a href="/scores" role="button" class="secondary">Go there</a></div>
+				</div>
+				<p><b>Gamekeeper (author)</b></p>
+				<div class="grid">
+					<div>
+						<p>I started complaining that i did not like how I wrote above tool, now I'm fixing it. Playground will come soon.</p>
+					</div>
+					<div><a href="/gamekeeper" role="button" class="secondary">Go there</a></div>
 				</div>
 				<p><b>pipx (maintainer)</b></p>
 				<div class="grid">

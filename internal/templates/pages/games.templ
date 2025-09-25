@@ -1,0 +1,37 @@
+package pages
+
+import (
+	"github.com/gitznik/robswebhub/internal/database"
+	"github.com/gitznik/robswebhub/internal/templates/components"
+	"github.com/gitznik/robswebhub/internal/templates/layouts"
+)
+
+templ Games(games []database.ListGamesOfUserRow, errorMsg string, isLoggedIn bool) {
+	@layouts.Base("Scorekeeper", isLoggedIn) {
+		<main class="container">
+			if errorMsg != "" {
+				<section class="container">
+					<p><i><mark>{ errorMsg }</mark></i></p>
+				</section>
+			}
+			<h1>Gamekeeper</h1>
+			@components.GamesOfUser(games)
+		</main>
+	}
+}
+
+templ GamesSignup(errorMsg string, isLoggedIn bool) {
+	@layouts.Base("Scorekeeper", isLoggedIn) {
+		<main class="container">
+			if errorMsg != "" {
+				<section class="container">
+					<p><i><mark>{ errorMsg }</mark></i></p>
+				</section>
+			}
+			<h1>Gamekeeper</h1>
+			<p>You are not signed up for the Gamekeeper yet.</p>
+			<p>Do you want to sign up?</p>
+			<a hx-post="/gamekeeper/signup" role="button" class="secondary">Yes, sign me up!</a>
+		</main>
+	}
+}

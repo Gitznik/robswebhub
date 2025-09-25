@@ -5,16 +5,126 @@
 package database
 
 import (
+	"database/sql/driver"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+type GameRole string
+
+const (
+	GameRoleOwner  GameRole = "owner"
+	GameRoleWriter GameRole = "writer"
+	GameRoleReader GameRole = "reader"
+)
+
+func (e *GameRole) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = GameRole(s)
+	case string:
+		*e = GameRole(s)
+	default:
+		return fmt.Errorf("unsupported scan type for GameRole: %T", src)
+	}
+	return nil
+}
+
+type NullGameRole struct {
+	GameRole GameRole `json:"game_role"`
+	Valid    bool     `json:"valid"` // Valid is true if GameRole is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullGameRole) Scan(value interface{}) error {
+	if value == nil {
+		ns.GameRole, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.GameRole.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullGameRole) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.GameRole), nil
+}
+
+type GameType string
+
+const (
+	GameTypeDurak GameType = "durak"
+)
+
+func (e *GameType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = GameType(s)
+	case string:
+		*e = GameType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for GameType: %T", src)
+	}
+	return nil
+}
+
+type NullGameType struct {
+	GameType GameType `json:"game_type"`
+	Valid    bool     `json:"valid"` // Valid is true if GameType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullGameType) Scan(value interface{}) error {
+	if value == nil {
+		ns.GameType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.GameType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullGameType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.GameType), nil
+}
+
+type Game struct {
+	GameID    uuid.UUID `json:"game_id"`
+	Name      string    `json:"name"`
+	Type      GameType  `json:"type"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type GamesMembership struct {
+	GameID    uuid.UUID `json:"game_id"`
+	PlayerID  string    `json:"player_id"`
+	Role      GameRole  `json:"role"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
 
 type Match struct {
 	ID        uuid.UUID `json:"id"`
 	Player1   string    `json:"player_1"`
 	Player2   string    `json:"player_2"`
 	CreatedAt time.Time `json:"created_at"`
+}
+
+type Player struct {
+	PlayerID    string    `json:"player_id"`
+	GameLimit   int16     `json:"game_limit"`
+	ScoresLimit int16     `json:"scores_limit"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type Score struct {

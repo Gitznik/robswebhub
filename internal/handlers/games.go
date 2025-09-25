@@ -1,0 +1,120 @@
+package handlers
+
+import (
+	"errors"
+	"log"
+	"net/http"
+	"time"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
+	"github.com/gitznik/robswebhub/internal/database"
+	"github.com/gitznik/robswebhub/internal/middleware"
+	"github.com/gitznik/robswebhub/internal/templates/pages"
+	"github.com/jackc/pgx/v5"
+)
+
+func (h *Handler) GamesIndex(c *gin.Context) {
+	m, ok := sessions.Default(c).Get("profile").(map[string]interface{})
+	if !ok {
+		c.String(http.StatusInternalServerError, "Failed to read user information")
+		return
+	}
+	playerID, ok := m["sub"].(string)
+	if !ok {
+		c.String(http.StatusInternalServerError, "Could not cast player id to string")
+		return
+	}
+
+	isSignedUp := true
+	_, err := h.queries.GetPlayerInformation(c.Request.Context(), playerID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			isSignedUp = false
+		} else {
+			c.String(http.StatusInternalServerError, "Failed to read players")
+			log.Printf("Failed to read players: %v", err)
+			return
+		}
+	}
+
+	if !isSignedUp {
+		c.Redirect(http.StatusSeeOther, "/gamekeeper/signup")
+		return
+	}
+
+	gamesOfUser, err := h.queries.ListGamesOfUser(c.Request.Context(), playerID)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Failed to read players games")
+		log.Printf("Failed to read players games: %v", err)
+		return
+	}
+
+	component := pages.Games(gamesOfUser, "", c.GetBool(middleware.LoginKey))
+	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
+		c.String(http.StatusInternalServerError, "Failed to render page")
+		return
+	}
+}
+
+func (h *Handler) SignUp(c *gin.Context) {
+	m, ok := sessions.Default(c).Get("profile").(map[string]interface{})
+	if !ok {
+		c.String(http.StatusInternalServerError, "Failed to read user information")
+		return
+	}
+	playerID, ok := m["sub"].(string)
+	if !ok {
+		c.String(http.StatusInternalServerError, "Could not cast player id to string")
+		return
+	}
+
+	isSignedUp := true
+	_, err := h.queries.GetPlayerInformation(c.Request.Context(), playerID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			log.Printf("error is no rows")
+			isSignedUp = false
+		} else {
+			c.String(http.StatusInternalServerError, "Failed to read players")
+			log.Printf("Failed to read players: %v", err)
+			return
+		}
+	}
+
+	if isSignedUp {
+		c.Redirect(http.StatusSeeOther, "/gamekeeper")
+		return
+	}
+
+	component := pages.GamesSignup("", c.GetBool(middleware.LoginKey))
+	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
+		c.String(http.StatusInternalServerError, "Failed to render page")
+		return
+	}
+}
+
+func (h *Handler) DoSignUp(c *gin.Context) {
+	m, ok := sessions.Default(c).Get("profile").(map[string]interface{})
+	if !ok {
+		c.String(http.StatusInternalServerError, "Failed to read user information")
+		return
+	}
+	playerID, ok := m["sub"].(string)
+	if !ok {
+		c.String(http.StatusInternalServerError, "Could not cast player id to string")
+		return
+	}
+
+	_, err := h.queries.CreatePlayer(c.Request.Context(), database.CreatePlayerParams{
+		PlayerID:  playerID,
+		CreatedAt: time.Now(),
+	})
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Could not sign up")
+		log.Printf("Failed to create player: %v", err)
+		return
+	}
+	c.Header("HX-Redirect", "/gamekeeper")
+	c.String(http.StatusCreated, "Signup sucessful")
+}
