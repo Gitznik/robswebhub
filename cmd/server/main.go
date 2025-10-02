@@ -40,6 +40,7 @@ func main() {
 		EnableLogs:         true,
 		Environment:        cfg.Application.Environment,
 		IgnoreTransactions: []string{"HEAD /"},
+		SendDefaultPII:     true,
 	}); err != nil {
 		log.Fatalf("Sentry initialization failed: %v\n", err)
 	}
@@ -100,7 +101,7 @@ func main() {
 	log.Print("Server exiting")
 }
 
-func setupRouter(cfg *config.Config, queries *database.Queries, auth *auth.Authenticator) *gin.Engine {
+func setupRouter(cfg *config.Config, queries *database.Queries, authenticator *auth.Authenticator) *gin.Engine {
 	// Set Gin mode based on environment
 	if os.Getenv("APP_ENVIRONMENT") == "production" {
 		gin.SetMode(gin.ReleaseMode)
@@ -110,7 +111,8 @@ func setupRouter(cfg *config.Config, queries *database.Queries, auth *auth.Authe
 	router.Use(sentrygin.New(sentrygin.Options{Repanic: true}))
 
 	// Setup Auth
-	gob.Register(map[string]interface{}{})
+	var profile *auth.UserProfile
+	gob.Register(profile)
 
 	session_auth_key, err := hex.DecodeString(cfg.Auth.CookieAuthKey)
 	if err != nil {
@@ -148,9 +150,9 @@ func setupRouter(cfg *config.Config, queries *database.Queries, auth *auth.Authe
 		scores.GET("/chart/:id", h.ScoresChart)
 	}
 
-	router.GET("/login", h.MakeLogin(auth))
+	router.GET("/login", h.MakeLogin(authenticator))
 	router.GET("/logout", h.Logout)
-	router.GET("/callback", h.MakeCallback(auth))
+	router.GET("/callback", h.MakeCallback(authenticator))
 	scoresV2 := router.Group("/scoresV2")
 	scoresV2.Use(middleware.IsAuthenticated)
 	{

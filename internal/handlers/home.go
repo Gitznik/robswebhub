@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,7 +24,6 @@ func New(queries *database.Queries, cfg *config.Config) *Handler {
 
 func (h *Handler) Home(c *gin.Context) {
 	component := pages.Home(c.GetBool(middleware.LoginKey))
-	log.Printf("Home handler says is logged in: %v", c.GetBool(middleware.LoginKey))
 	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
 		c.String(http.StatusInternalServerError, "Failed to render page")
 		return
