@@ -1,5 +1,7 @@
 package auth
 
+import "time"
+
 type UserProfile struct {
 	// Standard OIDC claims
 	Aud string  `json:"aud"` // Audience (client ID)
@@ -14,4 +16,8 @@ type UserProfile struct {
 	Nickname  string `json:"nickname"`   // Username/nickname
 	Picture   string `json:"picture"`    // Profile picture URL
 	UpdatedAt string `json:"updated_at"` // Last profile update
+}
+
+func (p *UserProfile) IsExpired() bool {
+	return p.Exp < float64(time.Now().Unix())
 }

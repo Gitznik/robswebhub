@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/gob"
-	"encoding/hex"
 	"log"
 	"net/http"
 	"os"
@@ -13,8 +11,6 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	sentrygin "github.com/getsentry/sentry-go/gin"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gitznik/robswebhub/internal/auth"
@@ -22,6 +18,7 @@ import (
 	"github.com/gitznik/robswebhub/internal/database"
 	"github.com/gitznik/robswebhub/internal/handlers"
 	"github.com/gitznik/robswebhub/internal/middleware"
+	"github.com/gitznik/robswebhub/internal/sessions"
 )
 
 func main() {
@@ -110,20 +107,11 @@ func setupRouter(cfg *config.Config, queries *database.Queries, authenticator *a
 	router := gin.Default()
 	router.Use(sentrygin.New(sentrygin.Options{Repanic: true}))
 
-	// Setup Auth
-	var profile *auth.UserProfile
-	gob.Register(profile)
-
-	session_auth_key, err := hex.DecodeString(cfg.Auth.CookieAuthKey)
+	sessionMiddleware, err := sessions.SetupSessionMiddleware(cfg.Auth.CookieAuthKey, cfg.Auth.CookieEncryptionKey)
 	if err != nil {
-		log.Fatalf("Could not decode auth key")
+		log.Fatalf("Could not attach session information: %v", err)
 	}
-	session_encryption_key, err := hex.DecodeString(cfg.Auth.CookieEncryptionKey)
-	if err != nil {
-		log.Fatalf("Could not decode encryption key")
-	}
-	store := cookie.NewStore(session_auth_key, session_encryption_key)
-	router.Use(sessions.Sessions("auth-session", store))
+	router.Use(sessionMiddleware)
 	router.Use(middleware.LoginStatus)
 
 	// Serve static files

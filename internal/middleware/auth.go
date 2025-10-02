@@ -1,20 +1,19 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/getsentry/sentry-go"
 	sentrygin "github.com/getsentry/sentry-go/gin"
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/gitznik/robswebhub/internal/auth"
+	"github.com/gitznik/robswebhub/internal/sessions"
 )
 
 // IsAuthenticated is a middleware that checks if
 // the user has already been authenticated previously.
 func IsAuthenticated(ctx *gin.Context) {
-	if sessions.Default(ctx).Get("profile") == nil {
+	profile, err := sessions.GetProfile(ctx)
+	if profile == nil || err != nil || profile.IsExpired() {
 		ctx.Redirect(http.StatusSeeOther, "/login")
 	} else {
 		ctx.Next()
@@ -24,10 +23,8 @@ func IsAuthenticated(ctx *gin.Context) {
 var LoginKey = "IsLoggedIn"
 
 func LoginStatus(ctx *gin.Context) {
-	// FIXME: solve privilege persistence
-	log.Printf("Is logged in: %v", sessions.Default(ctx).Get("profile") != nil)
-	profile := sessions.Default(ctx).Get("profile").(*auth.UserProfile)
-	if profile != nil {
+	profile, err := sessions.GetProfile(ctx)
+	if profile != nil && err != nil {
 		if hub := sentrygin.GetHubFromContext(ctx); hub != nil {
 			hub.ConfigureScope(func(scope *sentry.Scope) {
 				scope.SetUser(sentry.User{ID: profile.Name})

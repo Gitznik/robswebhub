@@ -6,28 +6,25 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/gitznik/robswebhub/internal/database"
 	"github.com/gitznik/robswebhub/internal/middleware"
+	"github.com/gitznik/robswebhub/internal/sessions"
 	"github.com/gitznik/robswebhub/internal/templates/pages"
 	"github.com/jackc/pgx/v5"
 )
 
 func (h *Handler) GamesIndex(c *gin.Context) {
-	m, ok := sessions.Default(c).Get("profile").(map[string]interface{})
-	if !ok {
+	p, err := sessions.GetProfile(c)
+	if err != nil {
 		c.String(http.StatusInternalServerError, "Failed to read user information")
+		log.Printf("%v", err)
 		return
 	}
-	playerID, ok := m["sub"].(string)
-	if !ok {
-		c.String(http.StatusInternalServerError, "Could not cast player id to string")
-		return
-	}
+	playerID := p.Sub
 
 	isSignedUp := true
-	_, err := h.queries.GetPlayerInformation(c.Request.Context(), playerID)
+	_, err = h.queries.GetPlayerInformation(c.Request.Context(), playerID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			isSignedUp = false
@@ -58,19 +55,16 @@ func (h *Handler) GamesIndex(c *gin.Context) {
 }
 
 func (h *Handler) SignUp(c *gin.Context) {
-	m, ok := sessions.Default(c).Get("profile").(map[string]interface{})
-	if !ok {
+	p, err := sessions.GetProfile(c)
+	if err != nil {
 		c.String(http.StatusInternalServerError, "Failed to read user information")
+		log.Printf("%v", err)
 		return
 	}
-	playerID, ok := m["sub"].(string)
-	if !ok {
-		c.String(http.StatusInternalServerError, "Could not cast player id to string")
-		return
-	}
+	playerID := p.Sub
 
 	isSignedUp := true
-	_, err := h.queries.GetPlayerInformation(c.Request.Context(), playerID)
+	_, err = h.queries.GetPlayerInformation(c.Request.Context(), playerID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			log.Printf("error is no rows")
@@ -95,18 +89,15 @@ func (h *Handler) SignUp(c *gin.Context) {
 }
 
 func (h *Handler) DoSignUp(c *gin.Context) {
-	m, ok := sessions.Default(c).Get("profile").(map[string]interface{})
-	if !ok {
+	p, err := sessions.GetProfile(c)
+	if err != nil {
 		c.String(http.StatusInternalServerError, "Failed to read user information")
+		log.Printf("%v", err)
 		return
 	}
-	playerID, ok := m["sub"].(string)
-	if !ok {
-		c.String(http.StatusInternalServerError, "Could not cast player id to string")
-		return
-	}
+	playerID := p.Sub
 
-	_, err := h.queries.CreatePlayer(c.Request.Context(), database.CreatePlayerParams{
+	_, err = h.queries.CreatePlayer(c.Request.Context(), database.CreatePlayerParams{
 		PlayerID:  playerID,
 		CreatedAt: time.Now(),
 	})
