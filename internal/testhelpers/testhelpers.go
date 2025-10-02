@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gitznik/robswebhub/internal/config"
 	"github.com/gitznik/robswebhub/internal/database"
-	"github.com/gitznik/robswebhub/internal/handlers"
+	"github.com/gitznik/robswebhub/internal/router"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -162,40 +162,13 @@ type TestData struct {
 // SetupTestRouter creates a test Gin router
 func SetupTestRouter(queries *database.Queries) *gin.Engine {
 	gin.SetMode(gin.TestMode)
-	return setupRouter(&config.Config{
-		Application: config.ApplicationConfig{
-			Environment: "test",
-		},
-	}, queries)
-}
-
-// This should match the setupRouter function from main.go
-func setupRouter(cfg *config.Config, queries *database.Queries) *gin.Engine {
-	router := gin.New()
-	router.Use(gin.Recovery())
-
-	// Serve static files
-	router.Static("/static", "./static")
-
-	h := handlers.New(queries, cfg)
-
-	// Routes
-	router.GET("/", h.Home)
-	router.HEAD("/", h.HomeHead)
-	router.GET("/about", h.About)
-
-	// Scores routes
-	scores := router.Group("/scores")
-	{
-		scores.GET("", h.ScoresIndex)
-		scores.POST("/single", h.ScoresSingle)
-		scores.POST("/batch", h.ScoresBatch)
-		scores.GET("/single-form", h.SingleScoreForm)
-		scores.GET("/batch-form", h.BatchScoreForm)
-		scores.GET("/chart/:id", h.ScoresChart)
-	}
-
-	return router
+	return router.SetupRouter(
+		&config.Config{
+			Application: config.ApplicationConfig{
+				Environment: "test",
+			},
+		}, queries, nil,
+	)
 }
 
 // AssertResponseCode checks if response code matches expected

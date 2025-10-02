@@ -10,15 +10,11 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
-	sentrygin "github.com/getsentry/sentry-go/gin"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gitznik/robswebhub/internal/auth"
 	"github.com/gitznik/robswebhub/internal/config"
 	"github.com/gitznik/robswebhub/internal/database"
-	"github.com/gitznik/robswebhub/internal/handlers"
-	"github.com/gitznik/robswebhub/internal/middleware"
-	"github.com/gitznik/robswebhub/internal/sessions"
+	"github.com/gitznik/robswebhub/internal/router"
 )
 
 func main() {
@@ -66,7 +62,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Could not setup authenticator: %v", err)
 	}
-	router := setupRouter(cfg, queries, auth)
+	router := router.SetupRouter(cfg, queries, auth)
 
 	// Create HTTP server
 	srv := &http.Server{
@@ -96,59 +92,4 @@ func main() {
 	}
 
 	log.Print("Server exiting")
-}
-
-func setupRouter(cfg *config.Config, queries *database.Queries, authenticator *auth.Authenticator) *gin.Engine {
-	// Set Gin mode based on environment
-	if os.Getenv("APP_ENVIRONMENT") == "production" {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
-	router := gin.Default()
-	router.Use(sentrygin.New(sentrygin.Options{Repanic: true}))
-	router.Use(middleware.ErrorHandler)
-
-	sessionMiddleware, err := sessions.SetupSessionMiddleware(cfg.Auth.CookieAuthKey, cfg.Auth.CookieEncryptionKey)
-	if err != nil {
-		log.Fatalf("Could not attach session information: %v", err)
-	}
-	router.Use(sessionMiddleware)
-	router.Use(middleware.LoginStatus)
-
-	// Serve static files
-	router.Static("/static", "./static")
-	router.Static("/images", "./static/images")
-	router.StaticFile("/favicon.ico", "./static/images/favicon.ico")
-
-	// Create handlers
-	h := handlers.New(queries, cfg)
-
-	// Routes
-	router.GET("/", h.Home)
-	router.HEAD("/", h.HomeHead)
-	router.GET("/about", h.About)
-
-	// Scores routes
-	scores := router.Group("/scores")
-	{
-		scores.GET("", h.ScoresIndex)
-		scores.POST("/single", h.ScoresSingle)
-		scores.POST("/batch", h.ScoresBatch)
-		scores.GET("/single-form", h.SingleScoreForm)
-		scores.GET("/batch-form", h.BatchScoreForm)
-		scores.GET("/chart/:id", h.ScoresChart)
-	}
-
-	router.GET("/login", h.MakeLogin(authenticator))
-	router.GET("/logout", h.Logout)
-	router.GET("/callback", h.MakeCallback(authenticator))
-	gamekeeper := router.Group("/gamekeeper")
-	gamekeeper.Use(middleware.IsAuthenticated)
-	{
-		gamekeeper.GET("", h.GamesIndex)
-		gamekeeper.GET("/signup", h.SignUp)
-		gamekeeper.POST("/signup", h.DoSignUp)
-	}
-
-	return router
 }

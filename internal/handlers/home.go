@@ -23,6 +23,12 @@ func New(queries *database.Queries, cfg *config.Config) *Handler {
 	}
 }
 
+func (h *Handler) RegisterRoute(rg *gin.RouterGroup) {
+	rg.GET("/", h.Home)
+	rg.HEAD("/", h.HomeHead)
+	rg.GET("/about", h.About)
+}
+
 func (h *Handler) Home(c *gin.Context) {
 	redirectError := c.Query("error")
 	component := pages.Home(redirectError, c.GetBool(middleware.LoginKey))
@@ -34,4 +40,12 @@ func (h *Handler) Home(c *gin.Context) {
 
 func (h *Handler) HomeHead(c *gin.Context) {
 	c.Status(http.StatusOK)
+}
+
+func (h *Handler) About(c *gin.Context) {
+	component := pages.About(c.GetBool(middleware.LoginKey))
+	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
+		_ = c.Error(errors.New("Failed to render page"))
+		return
+	}
 }

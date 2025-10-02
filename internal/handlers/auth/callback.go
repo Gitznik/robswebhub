@@ -1,0 +1,47 @@
+package auth
+
+import (
+	"errors"
+	"net/http"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
+	"github.com/gitznik/robswebhub/internal/auth"
+)
+
+func (h *Handler) Callback(c *gin.Context) {
+	session := sessions.Default(c)
+	if c.Query("state") != session.Get("state") {
+		c.String(http.StatusBadRequest, "Invalid state parameter.")
+		return
+	}
+
+	// Exchange an authorization code for a token.
+	token, err := h.authenticator.Exchange(c.Request.Context(), c.Query("code"))
+	if err != nil {
+		c.String(http.StatusUnauthorized, "Failed to convert an authorization code into a token.")
+		return
+	}
+
+	idToken, err := h.authenticator.VerifyIDToken(c.Request.Context(), token)
+	if err != nil {
+		_ = c.Error(errors.New("Failed to verify ID Token."))
+		return
+	}
+
+	var profile auth.UserProfile
+	if err := idToken.Claims(&profile); err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	session.Set("access_token", token.AccessToken)
+	session.Set("profile", profile)
+	if err := session.Save(); err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	// Redirect to logged in page.
+	c.Redirect(http.StatusTemporaryRedirect, "/")
+}
