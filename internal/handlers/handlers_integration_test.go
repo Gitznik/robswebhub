@@ -14,11 +14,7 @@ import (
 )
 
 func TestIntegration_HomePage(t *testing.T) {
-	// Setup
-	db := testhelpers.SetupTestDB(t)
-	defer db.Cleanup()
-
-	router := testhelpers.SetupTestRouter(db.Queries)
+	t.Parallel()
 
 	// Test GET /
 	t.Run("GET / returns home page", func(t *testing.T) {
@@ -45,11 +41,7 @@ func TestIntegration_HomePage(t *testing.T) {
 }
 
 func TestIntegration_AboutPage(t *testing.T) {
-	// Setup
-	db := testhelpers.SetupTestDB(t)
-	defer db.Cleanup()
-
-	router := testhelpers.SetupTestRouter(db.Queries)
+	t.Parallel()
 
 	t.Run("GET /about returns about page", func(t *testing.T) {
 		req, _ := http.NewRequest("GET", "/about", nil)
@@ -63,12 +55,9 @@ func TestIntegration_AboutPage(t *testing.T) {
 }
 
 func TestIntegration_ScoresIndex(t *testing.T) {
-	// Setup
-	db := testhelpers.SetupTestDB(t)
-	defer db.Cleanup()
+	t.Parallel()
 
 	testData := db.SeedTestData(t)
-	router := testhelpers.SetupTestRouter(db.Queries)
 
 	t.Run("GET /scores without matchup_id", func(t *testing.T) {
 		req, _ := http.NewRequest("GET", "/scores", nil)
@@ -112,12 +101,9 @@ func TestIntegration_ScoresIndex(t *testing.T) {
 }
 
 func TestIntegration_SingleScoreSubmission(t *testing.T) {
+	t.Parallel()
 	// Setup
-	db := testhelpers.SetupTestDB(t)
-	defer db.Cleanup()
-
 	testData := db.SeedTestData(t)
-	router := testhelpers.SetupTestRouter(db.Queries)
 
 	t.Run("POST /scores/single with valid data", func(t *testing.T) {
 		formData := url.Values{
@@ -185,12 +171,9 @@ func TestIntegration_SingleScoreSubmission(t *testing.T) {
 }
 
 func TestIntegration_BatchScoreSubmission(t *testing.T) {
+	t.Parallel()
 	// Setup
-	db := testhelpers.SetupTestDB(t)
-	defer db.Cleanup()
-
 	testData := db.SeedTestData(t)
-	router := testhelpers.SetupTestRouter(db.Queries)
 
 	t.Run("POST /scores/batch with valid data", func(t *testing.T) {
 		batchData := fmt.Sprintf(`%s %s 2:1
@@ -243,12 +226,9 @@ invalid line
 }
 
 func TestIntegration_ScoreForms(t *testing.T) {
+	t.Parallel()
 	// Setup
-	db := testhelpers.SetupTestDB(t)
-	defer db.Cleanup()
-
 	testData := db.SeedTestData(t)
-	router := testhelpers.SetupTestRouter(db.Queries)
 
 	t.Run("GET /scores/single-form", func(t *testing.T) {
 		req, _ := http.NewRequest("GET", fmt.Sprintf("/scores/single-form?matchup_id=%s", testData.MatchID), nil)
@@ -272,12 +252,9 @@ func TestIntegration_ScoreForms(t *testing.T) {
 }
 
 func TestIntegration_ScoresChart(t *testing.T) {
+	t.Parallel()
 	// Setup
-	db := testhelpers.SetupTestDB(t)
-	defer db.Cleanup()
-
 	testData := db.SeedTestData(t)
-	router := testhelpers.SetupTestRouter(db.Queries)
 
 	t.Run("GET /scores/chart/:id with valid match", func(t *testing.T) {
 		req, _ := http.NewRequest("GET", fmt.Sprintf("/scores/chart/%s", testData.MatchID), nil)
