@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +27,7 @@ func (h *Handler) Home(c *gin.Context) {
 	redirectError := c.Query("error")
 	component := pages.Home(redirectError, c.GetBool(middleware.LoginKey))
 	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
-		c.String(http.StatusInternalServerError, "Failed to render page")
+		_ = c.Error(errors.New("Failed to render page"))
 		return
 	}
 }

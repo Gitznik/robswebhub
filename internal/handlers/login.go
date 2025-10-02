@@ -14,7 +14,7 @@ func (h *Handler) MakeLogin(auth *auth.Authenticator) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		state, err := generateRandomState()
 		if err != nil {
-			c.String(http.StatusInternalServerError, err.Error())
+			_ = c.Error(err)
 			return
 		}
 
@@ -22,7 +22,7 @@ func (h *Handler) MakeLogin(auth *auth.Authenticator) gin.HandlerFunc {
 		session := sessions.Default(c)
 		session.Set("state", state)
 		if err := session.Save(); err != nil {
-			c.String(http.StatusInternalServerError, err.Error())
+			_ = c.Error(err)
 			return
 		}
 

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -25,7 +26,7 @@ func (h *Handler) MakeCallback(authenticator *auth.Authenticator) gin.HandlerFun
 
 		idToken, err := authenticator.VerifyIDToken(c.Request.Context(), token)
 		if err != nil {
-			c.String(http.StatusInternalServerError, "Failed to verify ID Token.")
+			_ = c.Error(errors.New("Failed to verify ID Token."))
 			return
 		}
 
@@ -38,7 +39,7 @@ func (h *Handler) MakeCallback(authenticator *auth.Authenticator) gin.HandlerFun
 		session.Set("access_token", token.AccessToken)
 		session.Set("profile", profile)
 		if err := session.Save(); err != nil {
-			c.String(http.StatusInternalServerError, err.Error())
+			_ = c.Error(err)
 			return
 		}
 

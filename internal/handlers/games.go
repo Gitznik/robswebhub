@@ -17,7 +17,7 @@ import (
 func (h *Handler) GamesIndex(c *gin.Context) {
 	p, err := sessions.GetProfile(c)
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Failed to read user information")
+		_ = c.Error(errors.New("Failed to read user information"))
 		log.Printf("%v", err)
 		return
 	}
@@ -29,7 +29,7 @@ func (h *Handler) GamesIndex(c *gin.Context) {
 		if errors.Is(err, pgx.ErrNoRows) {
 			isSignedUp = false
 		} else {
-			c.String(http.StatusInternalServerError, "Failed to read players")
+			_ = c.Error(errors.New("Failed to read players"))
 			log.Printf("Failed to read players: %v", err)
 			return
 		}
@@ -42,14 +42,14 @@ func (h *Handler) GamesIndex(c *gin.Context) {
 
 	gamesOfUser, err := h.queries.ListGamesOfUser(c.Request.Context(), playerID)
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Failed to read players games")
+		_ = c.Error(errors.New("Failed to read players games"))
 		log.Printf("Failed to read players games: %v", err)
 		return
 	}
 
 	component := pages.Games(gamesOfUser, "", c.GetBool(middleware.LoginKey))
 	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
-		c.String(http.StatusInternalServerError, "Failed to render page")
+		_ = c.Error(errors.New("Failed to render page"))
 		return
 	}
 }
@@ -57,7 +57,7 @@ func (h *Handler) GamesIndex(c *gin.Context) {
 func (h *Handler) SignUp(c *gin.Context) {
 	p, err := sessions.GetProfile(c)
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Failed to read user information")
+		_ = c.Error(errors.New("Failed to read user information"))
 		log.Printf("%v", err)
 		return
 	}
@@ -70,7 +70,7 @@ func (h *Handler) SignUp(c *gin.Context) {
 			log.Printf("error is no rows")
 			isSignedUp = false
 		} else {
-			c.String(http.StatusInternalServerError, "Failed to read players")
+			_ = c.Error(errors.New("Failed to read players"))
 			log.Printf("Failed to read players: %v", err)
 			return
 		}
@@ -83,7 +83,7 @@ func (h *Handler) SignUp(c *gin.Context) {
 
 	component := pages.GamesSignup("", c.GetBool(middleware.LoginKey))
 	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
-		c.String(http.StatusInternalServerError, "Failed to render page")
+		_ = c.Error(errors.New("Failed to render page"))
 		return
 	}
 }
@@ -91,7 +91,7 @@ func (h *Handler) SignUp(c *gin.Context) {
 func (h *Handler) DoSignUp(c *gin.Context) {
 	p, err := sessions.GetProfile(c)
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Failed to read user information")
+		_ = c.Error(errors.New("Failed to read user information"))
 		log.Printf("%v", err)
 		return
 	}
@@ -102,7 +102,7 @@ func (h *Handler) DoSignUp(c *gin.Context) {
 		CreatedAt: time.Now(),
 	})
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Could not sign up")
+		_ = c.Error(errors.New("Could not sign up"))
 		log.Printf("Failed to create player: %v", err)
 		return
 	}

@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/getsentry/sentry-go"
@@ -34,4 +35,17 @@ func LoginStatus(ctx *gin.Context) {
 
 	ctx.Set(LoginKey, profile != nil)
 	ctx.Next()
+}
+
+func ErrorHandler(ctx *gin.Context) {
+	ctx.Next()
+	if len(ctx.Errors) > 0 {
+		err := ctx.Errors.Last().Err
+		log.Printf("Encountered unhandled error: %v", err)
+
+		ctx.JSON(http.StatusInternalServerError, map[string]any{
+			"success": false,
+			"message": "Internal server error",
+		})
+	}
 }

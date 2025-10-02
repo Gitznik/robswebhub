@@ -106,6 +106,7 @@ func setupRouter(cfg *config.Config, queries *database.Queries, authenticator *a
 
 	router := gin.Default()
 	router.Use(sentrygin.New(sentrygin.Options{Repanic: true}))
+	router.Use(middleware.ErrorHandler)
 
 	sessionMiddleware, err := sessions.SetupSessionMiddleware(cfg.Auth.CookieAuthKey, cfg.Auth.CookieEncryptionKey)
 	if err != nil {

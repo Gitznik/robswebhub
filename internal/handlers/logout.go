@@ -20,7 +20,7 @@ func (h *Handler) Logout(c *gin.Context) {
 
 	logoutUrl, err := url.Parse("https://" + h.cfg.Auth.Auth0Domain + "/v2/logout")
 	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
+		_ = c.Error(err)
 		return
 	}
 
@@ -31,7 +31,7 @@ func (h *Handler) Logout(c *gin.Context) {
 
 	returnTo, err := url.Parse(scheme + "://" + c.Request.Host)
 	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
+		_ = c.Error(err)
 		return
 	}
 
