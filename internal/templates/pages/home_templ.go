@@ -11,7 +11,7 @@ import (
 	"github.com/gitznik/robswebhub/internal/templates/layouts"
 )
 
-func Home(isLoggedIn bool) templ.Component {
+func Home(errorMsg string, isLoggedIn bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -44,7 +44,30 @@ func Home(isLoggedIn bool) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"container\"><h1>Hello, and Welcome to RobsWebHub!</h1><p>Hi, I'm Rob. I'm collecting and showcasing some of my projects here.</p><p><a href=\"/about\" role=\"button\">More about me</a></p><section id=\"buttons\"><h2>Projects</h2><p><b>Scorekeeper (author)</b></p><div class=\"grid\"><div><p>My girlfriend complained that I'm always winning in a card game we regularly play. I wrote this tool to prove her wrong.</p></div><div><a href=\"/scores\" role=\"button\" class=\"secondary\">Go there</a></div></div><p><b>pipx (maintainer)</b></p><div class=\"grid\"><div><p>Install and Run Python Applications in Isolated Environments. Maintainer since January 2024.</p></div><div><a href=\"https://github.com/pypa/pipx\" role=\"button\" class=\"secondary\">Go there</a></div></div></section></main>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"container\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if errorMsg != "" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<section class=\"container\"><p><i><mark>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var3 string
+				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(errorMsg)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pages/home.templ`, Line: 10, Col: 27}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</mark></i></p></section>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<h1>Hello, and Welcome to RobsWebHub!</h1><p>Hi, I'm Rob. I'm collecting and showcasing some of my projects here.</p><p><a href=\"/about\" role=\"button\">More about me</a></p><section id=\"buttons\"><h2>Projects</h2><p><b>Scorekeeper (author)</b></p><div class=\"grid\"><div><p>My girlfriend complained that I'm always winning in a card game we regularly play. I wrote this tool to prove her wrong.</p></div><div><a href=\"/scores\" role=\"button\" class=\"secondary\">Go there</a></div></div><p><b>Gamekeeper (author)</b></p><div class=\"grid\"><div><p>I started complaining that i did not like how I wrote above tool, now I'm fixing it. Playground will come soon.</p></div><div><a href=\"/gamekeeper\" role=\"button\" class=\"secondary\">Go there</a></div></div><p><b>pipx (maintainer)</b></p><div class=\"grid\"><div><p>Install and Run Python Applications in Isolated Environments. Maintainer since January 2024.</p></div><div><a href=\"https://github.com/pypa/pipx\" role=\"button\" class=\"secondary\">Go there</a></div></div></section></main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -1,0 +1,27 @@
+package components
+
+import (
+	"fmt"
+	"github.com/gitznik/robswebhub/internal/database"
+)
+
+templ GamesOfUser(games []database.ListGamesOfUserRow) {
+	<table role="grid">
+		<thead>
+			<tr>
+				<th scope="col">#</th>
+				<th scope="col">Name</th>
+				<th scope="col">Type</th>
+			</tr>
+		</thead>
+		<tbody>
+			for i, game := range games {
+				<tr>
+					<th scope="row">{ fmt.Sprintf("%d", i+1) }</th>
+					<td>{ fmt.Sprintf("%v", game.Name) }</td>
+					<td>{ fmt.Sprintf("%v", game.Type) }</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}

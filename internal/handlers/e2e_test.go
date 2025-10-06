@@ -3,6 +3,7 @@ package handlers_test
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -10,18 +11,33 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/gitznik/robswebhub/internal/database"
 	"github.com/gitznik/robswebhub/internal/testhelpers"
 	"github.com/google/uuid"
+	"github.com/testcontainers/testcontainers-go"
 )
+
+var (
+	db     *testhelpers.TestDB
+	router *gin.Engine
+)
+
+func TestMain(m *testing.M) {
+	db = testhelpers.SetupTestDB()
+
+	router = testhelpers.SetupTestRouter(db.Queries)
+	m.Run()
+
+	db.Pool.Close()
+	if err := testcontainers.TerminateContainer(db.Container); err != nil {
+		log.Printf("Failed to terminate container: %v", err)
+	}
+}
 
 // TestE2E_CompleteScoreWorkflow tests the complete scorekeeper workflow
 func TestE2E_CompleteScoreWorkflow(t *testing.T) {
-	// Setup
-	db := testhelpers.SetupTestDB(t)
-	defer db.Cleanup()
-
-	router := testhelpers.SetupTestRouter(db.Queries)
+	t.Parallel()
 	ctx := context.Background()
 
 	// Step 1: Create a new match
@@ -160,10 +176,6 @@ func TestE2E_CompleteScoreWorkflow(t *testing.T) {
 // TestE2E_MultipleMatchesWorkflow tests managing multiple matches
 func TestE2E_MultipleMatchesWorkflow(t *testing.T) {
 	// Setup
-	db := testhelpers.SetupTestDB(t)
-	defer db.Cleanup()
-
-	router := testhelpers.SetupTestRouter(db.Queries)
 	ctx := context.Background()
 
 	// Create multiple matches
@@ -231,12 +243,6 @@ func TestE2E_MultipleMatchesWorkflow(t *testing.T) {
 
 // TestE2E_ErrorHandlingWorkflow tests error scenarios
 func TestE2E_ErrorHandlingWorkflow(t *testing.T) {
-	// Setup
-	db := testhelpers.SetupTestDB(t)
-	defer db.Cleanup()
-
-	router := testhelpers.SetupTestRouter(db.Queries)
-
 	t.Run("Handle non-existent match gracefully", func(t *testing.T) {
 		nonExistentID := uuid.New()
 
@@ -339,12 +345,6 @@ func TestE2E_ErrorHandlingWorkflow(t *testing.T) {
 
 // TestE2E_NavigationWorkflow tests navigation between pages
 func TestE2E_NavigationWorkflow(t *testing.T) {
-	// Setup
-	db := testhelpers.SetupTestDB(t)
-	defer db.Cleanup()
-
-	router := testhelpers.SetupTestRouter(db.Queries)
-
 	navigationPaths := []struct {
 		name     string
 		path     string

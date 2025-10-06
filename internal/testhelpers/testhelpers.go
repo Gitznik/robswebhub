@@ -2,13 +2,14 @@ package testhelpers
 
 import (
 	"context"
+	"log"
 	"testing"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gitznik/robswebhub/internal/config"
 	"github.com/gitznik/robswebhub/internal/database"
-	"github.com/gitznik/robswebhub/internal/handlers"
+	"github.com/gitznik/robswebhub/internal/router"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -19,22 +20,16 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-// TestDB holds test database connection and cleanup function
 type TestDB struct {
 	Pool      *pgxpool.Pool
 	Queries   *database.Queries
 	Container testcontainers.Container
 	ConnStr   string
-	cleanup   func()
 }
 
-// SetupTestDB creates a test database using testcontainers
-func SetupTestDB(t *testing.T) *TestDB {
-	t.Helper()
-
+func SetupTestDB() *TestDB {
 	ctx := context.Background()
 
-	// Start PostgreSQL container
 	postgresContainer, err := postgres.Run(ctx,
 		"postgres:16-alpine",
 		postgres.WithDatabase("testdb"),
@@ -47,34 +42,34 @@ func SetupTestDB(t *testing.T) *TestDB {
 		),
 	)
 	if err != nil {
-		t.Fatalf("Failed to start postgres container: %v", err)
+		log.Fatalf("Failed to start postgres container: %v", err)
 	}
 
 	// Get connection string
 	connStr, err := postgresContainer.ConnectionString(ctx, "sslmode=disable")
 	if err != nil {
-		t.Fatalf("Failed to get connection string: %v", err)
+		log.Fatalf("Failed to get connection string: %v", err)
 	}
 
 	// Connect to database
 	pool, err := pgxpool.New(ctx, connStr)
 	if err != nil {
-		t.Fatalf("Failed to connect to test database: %v", err)
+		log.Fatalf("Failed to connect to test database: %v", err)
 	}
 
 	// Run migrations
-	m, err := migrate.New(
+	mig, err := migrate.New(
 		GetMigrationsPath(),
 		connStr,
 	)
 	if err != nil {
-		t.Fatalf("Failed to create migration instance: %v", err)
+		log.Fatalf("Failed to create migration instance: %v", err)
 	}
 
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		t.Fatalf("Failed to run migrations: %v", err)
+	if err := mig.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatalf("Failed to run migrations: %v", err)
 	}
-	m.Close()
+	mig.Close()
 
 	queries := database.New(pool)
 
@@ -83,23 +78,9 @@ func SetupTestDB(t *testing.T) *TestDB {
 		Queries:   queries,
 		Container: postgresContainer,
 		ConnStr:   connStr,
-		cleanup: func() {
-			pool.Close()
-			if err := postgresContainer.Terminate(ctx); err != nil {
-				t.Logf("Failed to terminate container: %v", err)
-			}
-		},
 	}
 }
 
-// Cleanup cleans up test database resources
-func (tdb *TestDB) Cleanup() {
-	if tdb.cleanup != nil {
-		tdb.cleanup()
-	}
-}
-
-// SeedTestData seeds the database with test data
 func (tdb *TestDB) SeedTestData(t *testing.T) TestData {
 	t.Helper()
 
@@ -120,7 +101,7 @@ func (tdb *TestDB) SeedTestData(t *testing.T) TestData {
 		CreatedAt: time.Now(),
 	})
 	if err != nil {
-		t.Fatalf("Failed to create test match: %v", err)
+		log.Fatalf("Failed to create test match: %v", err)
 	}
 
 	// Create some test scores
@@ -143,7 +124,7 @@ func (tdb *TestDB) SeedTestData(t *testing.T) TestData {
 			PlayedAt:    testData.PlayedAt.AddDate(0, 0, i),
 		})
 		if err != nil {
-			t.Fatalf("Failed to create test score: %v", err)
+			log.Fatalf("Failed to create test score: %v", err)
 		}
 	}
 
@@ -162,40 +143,13 @@ type TestData struct {
 // SetupTestRouter creates a test Gin router
 func SetupTestRouter(queries *database.Queries) *gin.Engine {
 	gin.SetMode(gin.TestMode)
-	return setupRouter(&config.Config{
-		Application: config.ApplicationConfig{
-			Environment: "test",
-		},
-	}, queries)
-}
-
-// This should match the setupRouter function from main.go
-func setupRouter(cfg *config.Config, queries *database.Queries) *gin.Engine {
-	router := gin.New()
-	router.Use(gin.Recovery())
-
-	// Serve static files
-	router.Static("/static", "./static")
-
-	h := handlers.New(queries, cfg)
-
-	// Routes
-	router.GET("/", h.Home)
-	router.HEAD("/", h.HomeHead)
-	router.GET("/about", h.About)
-
-	// Scores routes
-	scores := router.Group("/scores")
-	{
-		scores.GET("", h.ScoresIndex)
-		scores.POST("/single", h.ScoresSingle)
-		scores.POST("/batch", h.ScoresBatch)
-		scores.GET("/single-form", h.SingleScoreForm)
-		scores.GET("/batch-form", h.BatchScoreForm)
-		scores.GET("/chart/:id", h.ScoresChart)
-	}
-
-	return router
+	return router.SetupRouter(
+		&config.Config{
+			Application: config.ApplicationConfig{
+				Environment: "test",
+			},
+		}, queries, nil,
+	)
 }
 
 // AssertResponseCode checks if response code matches expected

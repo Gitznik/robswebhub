@@ -1,7 +1,8 @@
-package handlers
+package scorekeeper
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -33,6 +34,7 @@ type BatchScoreInput struct {
 
 func (h *Handler) ScoresIndex(c *gin.Context) {
 	matchupIDStr := c.Query("matchup_id")
+	redirectError := c.Query("error")
 
 	var matchupID uuid.UUID
 	var match *database.GetMatchRow
@@ -45,7 +47,7 @@ func (h *Handler) ScoresIndex(c *gin.Context) {
 		if err != nil {
 			component := pages.Scores(nil, nil, nil, "Invalid matchup ID", c.GetBool(middleware.LoginKey))
 			if err := component.Render(c.Request.Context(), c.Writer); err != nil {
-				c.String(http.StatusInternalServerError, "Failed to render page")
+				_ = c.Error(errors.New("Failed to render page"))
 			}
 			return
 		}
@@ -55,7 +57,7 @@ func (h *Handler) ScoresIndex(c *gin.Context) {
 		if err != nil {
 			component := pages.Scores(nil, nil, nil, "Match not found", c.GetBool(middleware.LoginKey))
 			if err := component.Render(c.Request.Context(), c.Writer); err != nil {
-				c.String(http.StatusInternalServerError, "Failed to render page")
+				_ = c.Error(errors.New("Failed to render page"))
 			}
 			return
 		}
@@ -78,9 +80,9 @@ func (h *Handler) ScoresIndex(c *gin.Context) {
 		}
 	}
 
-	component := pages.Scores(match, scores, recentScores, "", c.GetBool(middleware.LoginKey))
+	component := pages.Scores(match, scores, recentScores, redirectError, c.GetBool(middleware.LoginKey))
 	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
-		c.String(http.StatusInternalServerError, "Failed to render page")
+		_ = c.Error(errors.New("Failed to render page"))
 		return
 	}
 }
@@ -260,7 +262,7 @@ func (h *Handler) SingleScoreForm(c *gin.Context) {
 
 	component := components.SingleScoreForm(matchupID)
 	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
-		c.String(http.StatusInternalServerError, "Failed to render form")
+		_ = c.Error(errors.New("Failed to render form"))
 		return
 	}
 }
@@ -278,7 +280,7 @@ func (h *Handler) BatchScoreForm(c *gin.Context) {
 
 	component := components.BatchScoreForm(matchupID)
 	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
-		c.String(http.StatusInternalServerError, "Failed to render form")
+		_ = c.Error(errors.New("Failed to render form"))
 		return
 	}
 }
@@ -305,7 +307,7 @@ func (h *Handler) ScoresChart(c *gin.Context) {
 		PlayedAt: cutoffDate,
 	})
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Failed to get scores")
+		_ = c.Error(errors.New("Failed to get scores"))
 		return
 	}
 
@@ -359,6 +361,6 @@ func (h *Handler) ScoresChart(c *gin.Context) {
 		SetSeriesOptions(charts.WithLineChartOpts(opts.LineChart{Smooth: true}))
 
 	if err := line.Render(c.Writer); err != nil {
-		c.String(http.StatusInternalServerError, "Failed to render graph")
+		_ = c.Error(errors.New("Failed to render graph"))
 	}
 }

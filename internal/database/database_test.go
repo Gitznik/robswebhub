@@ -2,18 +2,30 @@ package database_test
 
 import (
 	"context"
+	"log"
 	"testing"
 	"time"
 
 	"github.com/gitznik/robswebhub/internal/database"
 	"github.com/gitznik/robswebhub/internal/testhelpers"
 	"github.com/google/uuid"
+	"github.com/testcontainers/testcontainers-go"
 )
 
-func TestDatabase_CreateAndGetMatch(t *testing.T) {
-	db := testhelpers.SetupTestDB(t)
-	defer db.Cleanup()
+var (
+	db *testhelpers.TestDB
+)
 
+func TestMain(m *testing.M) {
+	db = testhelpers.SetupTestDB()
+	db.Pool.Close()
+	if err := testcontainers.TerminateContainer(db.Container); err != nil {
+		log.Printf("Failed to terminate container: %v", err)
+	}
+}
+
+func TestDatabase_CreateAndGetMatch(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	matchID := uuid.New()
 
@@ -55,8 +67,7 @@ func TestDatabase_CreateAndGetMatch(t *testing.T) {
 }
 
 func TestDatabase_CreateAndGetScores(t *testing.T) {
-	db := testhelpers.SetupTestDB(t)
-	defer db.Cleanup()
+	t.Parallel()
 
 	ctx := context.Background()
 
@@ -135,8 +146,7 @@ func TestDatabase_CreateAndGetScores(t *testing.T) {
 }
 
 func TestDatabase_BulkCreateScores(t *testing.T) {
-	db := testhelpers.SetupTestDB(t)
-	defer db.Cleanup()
+	t.Parallel()
 
 	ctx := context.Background()
 
@@ -196,8 +206,7 @@ func TestDatabase_BulkCreateScores(t *testing.T) {
 }
 
 func TestDatabase_EdgeCases(t *testing.T) {
-	db := testhelpers.SetupTestDB(t)
-	defer db.Cleanup()
+	t.Parallel()
 
 	ctx := context.Background()
 
@@ -267,8 +276,7 @@ func TestDatabase_EdgeCases(t *testing.T) {
 }
 
 func TestDatabase_Transactions(t *testing.T) {
-	db := testhelpers.SetupTestDB(t)
-	defer db.Cleanup()
+	t.Parallel()
 
 	ctx := context.Background()
 
