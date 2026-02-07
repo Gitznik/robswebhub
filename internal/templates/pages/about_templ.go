@@ -5,11 +5,10 @@ package pages
 
 //lint:file-ignore SA4006 This context is only used if a nested component is present.
 
-import (
-	"github.com/a-h/templ"
-	templruntime "github.com/a-h/templ/runtime"
-	"github.com/gitznik/robswebhub/internal/templates/layouts"
-)
+import "github.com/a-h/templ"
+import templruntime "github.com/a-h/templ/runtime"
+
+import "github.com/gitznik/robswebhub/internal/templates/layouts"
 
 func About(isLoggedIn bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -44,13 +43,159 @@ func About(isLoggedIn bool) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"container\"><h1>About me</h1><div class=\"grid\"><div><p>Hi, I'm Rob.</p><p>Over the last years I have worked hard on becoming a great software developer. I've spent this time in and adjacent to the data sphere professionally, while developing a handful of different things in my free time. This website you're looking at in fact is a Go API serving HTML pages with HTMX, among other tasks like communicating with a Postgres database. If you're interested in reading some of my opinion pieces, you can find them on my fairly inactive <a href=\"https://medium.com/@gitznik\">Medium Blog</a>.</p><p>I have also contributed to some open source projects that I have been using in my day to day. Most notably I'm maintainer of <a href=\"https://github.com/pypa/pipx\">Pipx</a>, and committed to <a href=\"https://github.com/dbt-labs/dbt-core\">DBT core</a> and <a href=\"https://github.com/airbytehq/airbyte\">Airbyte</a>.</p><p>Aside from my job, I'm a proud nerd, loving video games and collecting and building keyboards. I also keep myself healthy, playing Ping Pong, Spikeball and racing on Zwift.</p><p>Should you have any interesting proposals, feel free to reach out to me via my <a href=\"https://www.linkedin.com/in/robert-offner-065993191/\">LinkedIn</a>. Great to have you on my page!</p></div><div><img src=\"/images/profile.webp\" alt=\"Drawing of me\" width=\"372\" height=\"536.1\"></div></div><h2>Work Experience</h2><div><article><header><b>Software Engineer - Alpas</b></header><p>Notable Project:<br>Writing the backend for an internal task management solution, that allows creating a workstream of a multitude of different task types. This drastically increased the data quality of the task outputs while reducing the manual effort in operations.</p><ul><li>Responsible for developing and maintaining the internal backend supporting the data initiatives</li><li>Developing and maintaining<ul><li>an internal API written in Python & FastAPI</li><li>an internal Python package for developer productivity and utilities</li><li>all supporting tasks for infrastructure via Terraform, CI/CD, ...</li></ul></li></ul><footer>2023 - today</footer></article><article><header><b>Data Engineer - Kolibri Games (Ubisoft Mobile)</b></header><p>Notable Project:<br>Overhauling the entire data ingestion platform and process, reducing complexity and cost</p><ul><li>Responsible for data quality, reliability, accuracy and security</li><li>Developing and maintaining<ul><li>the data integration architecture</li><li>streaming and batch ETL and ELT pipelines from internal and external sources</li><li>analytical tools for business insights</li><li>data apps for workflow automation</li></ul></li></ul><footer>2021 - 2023</footer></article><article><header><b>Data Analyst - Kolibri Games (Ubisoft Mobile)</b></header><p>Notable Project:<br>Introducing DBT to the organisation and defining best practices by developing a model showing user level data on a daily breakdown, that was the basis of many exploratory analyses for years to come.</p><ul><li>Responsible for delivering meaningful business insights from the available data</li><li>Defining new data events if necessary</li><li>Creating new Silver and Bronze models to build analyses upon</li><li>Create Reports in Looker</li></ul><footer>2020 - 2021</footer></article></div><p><a href=\"/\" role=\"button\">Go back</a></p></main>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"flex-1 px-4 py-16\"><div class=\"max-w-4xl mx-auto\"><h1 class=\"text-4xl md:text-5xl font-bold mb-12 glow-text bg-gradient-to-r from-accent-cyan to-accent-green bg-clip-text text-transparent\">About me</h1><div class=\"grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-16\"><div class=\"md:col-span-2 space-y-4 text-gray-400\"><p>Hi, I'm Rob.</p><p>Over the last years I have worked hard on becoming a great software developer. I've spent this time in and adjacent to the data sphere professionally, while developing a handful of different things in my free time. This website you're looking at in fact is a Go API serving HTML pages with HTMX, among other tasks like communicating with a Postgres database. If you're interested in reading some of my opinion pieces, you can find them on my fairly inactive <a href=\"https://medium.com/@gitznik\">Medium Blog</a>.</p><p>I have also contributed to some open source projects that I have been using in my day to day. Most notably I'm maintainer of <a href=\"https://github.com/pypa/pipx\">Pipx</a>, and committed to <a href=\"https://github.com/dbt-labs/dbt-core\">DBT core</a> and <a href=\"https://github.com/airbytehq/airbyte\">Airbyte</a>.</p><p>Aside from my job, I'm a proud nerd, loving video games and collecting and building keyboards. I also keep myself healthy, playing Ping Pong, Spikeball and racing on Zwift.</p><p>Should you have any interesting proposals, feel free to reach out to me via my <a href=\"https://www.linkedin.com/in/robert-offner-065993191/\">LinkedIn</a>. Great to have you on my page!</p></div><div class=\"flex justify-center md:justify-end\"><img src=\"/images/profile.webp\" alt=\"Drawing of me\" class=\"rounded-xl shadow-lg w-full max-w-[280px] h-auto object-contain\"></div></div><h2 class=\"text-2xl font-bold text-gray-300 mb-8 flex items-center gap-3\"><span class=\"text-accent-cyan\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs("//")
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pages/about.templ`, Line: 48, Col: 42}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span> Work Experience</h2><div class=\"space-y-6 mb-12\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Var4 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+				if !templ_7745c5c3_IsBuffer {
+					defer func() {
+						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err == nil {
+							templ_7745c5c3_Err = templ_7745c5c3_BufErr
+						}
+					}()
+				}
+				ctx = templ.InitializeContext(ctx)
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<p class=\"text-gray-400 mb-3\"><span class=\"text-gray-300 font-semibold\">Notable Project:</span><br>Writing the backend for an internal task management solution, that allows creating a workstream of a multitude of different task types. This drastically increased the data quality of the task outputs while reducing the manual effort in operations.</p><ul class=\"list-disc list-inside text-gray-400 space-y-1 text-sm\"><li>Responsible for developing and maintaining the internal backend supporting the data initiatives</li><li>Developing and maintaining<ul class=\"list-disc list-inside ml-4 mt-1 space-y-1\"><li>an internal API written in Python &amp; FastAPI</li><li>an internal Python package for developer productivity and utilities</li><li>all supporting tasks for infrastructure via Terraform, CI/CD, ...</li></ul></li></ul>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				return nil
+			})
+			templ_7745c5c3_Err = workCard("Software Engineer - Alpas", "2023 - today").Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Var5 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+				if !templ_7745c5c3_IsBuffer {
+					defer func() {
+						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err == nil {
+							templ_7745c5c3_Err = templ_7745c5c3_BufErr
+						}
+					}()
+				}
+				ctx = templ.InitializeContext(ctx)
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<p class=\"text-gray-400 mb-3\"><span class=\"text-gray-300 font-semibold\">Notable Project:</span><br>Overhauling the entire data ingestion platform and process, reducing complexity and cost</p><ul class=\"list-disc list-inside text-gray-400 space-y-1 text-sm\"><li>Responsible for data quality, reliability, accuracy and security</li><li>Developing and maintaining<ul class=\"list-disc list-inside ml-4 mt-1 space-y-1\"><li>the data integration architecture</li><li>streaming and batch ETL and ELT pipelines from internal and external sources</li><li>analytical tools for business insights</li><li>data apps for workflow automation</li></ul></li></ul>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				return nil
+			})
+			templ_7745c5c3_Err = workCard("Data Engineer - Kolibri Games (Ubisoft Mobile)", "2021 - 2023").Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Var6 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+				if !templ_7745c5c3_IsBuffer {
+					defer func() {
+						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err == nil {
+							templ_7745c5c3_Err = templ_7745c5c3_BufErr
+						}
+					}()
+				}
+				ctx = templ.InitializeContext(ctx)
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<p class=\"text-gray-400 mb-3\"><span class=\"text-gray-300 font-semibold\">Notable Project:</span><br>Introducing DBT to the organisation and defining best practices by developing a model showing user level data on a daily breakdown, that was the basis of many exploratory analyses for years to come.</p><ul class=\"list-disc list-inside text-gray-400 space-y-1 text-sm\"><li>Responsible for delivering meaningful business insights from the available data</li><li>Defining new data events if necessary</li><li>Creating new Silver and Bronze models to build analyses upon</li><li>Create Reports in Looker</li></ul>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				return nil
+			})
+			templ_7745c5c3_Err = workCard("Data Analyst - Kolibri Games (Ubisoft Mobile)", "2020 - 2021").Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><a href=\"/\" class=\"btn\"><svg class=\"w-4 h-4 rotate-180\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M13 7l5 5m0 0l-5 5m5-5H6\"></path></svg> Go back</a></div></main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
 		templ_7745c5c3_Err = layouts.Base("About", isLoggedIn).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func workCard(title string, period string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var7 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var7 == nil {
+			templ_7745c5c3_Var7 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"card\"><div class=\"flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-4\"><h3 class=\"font-bold text-gray-100\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var8 string
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(title)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pages/about.templ`, Line: 121, Col: 46}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</h3><span class=\"text-sm text-accent-cyan\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var9 string
+		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(period)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/pages/about.templ`, Line: 122, Col: 50}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templ_7745c5c3_Var7.Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

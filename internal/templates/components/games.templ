@@ -6,18 +6,18 @@ import (
 )
 
 templ GamesOfUser(games []database.ListGamesOfUserRow) {
-	<table role="grid">
+	<table class="table">
 		<thead>
 			<tr>
-				<th scope="col">#</th>
-				<th scope="col">Name</th>
-				<th scope="col">Type</th>
+				<th>#</th>
+				<th>Name</th>
+				<th>Type</th>
 			</tr>
 		</thead>
 		<tbody>
 			for i, game := range games {
 				<tr>
-					<th scope="row">{ fmt.Sprintf("%d", i+1) }</th>
+					<td class="text-gray-500">{ fmt.Sprintf("%d", i+1) }</td>
 					<td>{ fmt.Sprintf("%v", game.Name) }</td>
 					<td>{ fmt.Sprintf("%v", game.Type) }</td>
 				</tr>

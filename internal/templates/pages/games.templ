@@ -8,30 +8,42 @@ import (
 
 templ Games(games []database.ListGamesOfUserRow, errorMsg string, isLoggedIn bool) {
 	@layouts.Base("Scorekeeper", isLoggedIn) {
-		<main class="container">
-			if errorMsg != "" {
-				<section class="container">
-					<p><i><mark>{ errorMsg }</mark></i></p>
-				</section>
-			}
-			<h1>Gamekeeper</h1>
-			@components.GamesOfUser(games)
+		<main class="flex-1 px-4 py-16">
+			<div class="max-w-4xl mx-auto">
+				if errorMsg != "" {
+					<div class="error-message">
+						{ errorMsg }
+					</div>
+				}
+				<h1 class="text-4xl md:text-5xl font-bold mb-8 glow-text bg-gradient-to-r from-accent-cyan to-accent-green bg-clip-text text-transparent">
+					Gamekeeper
+				</h1>
+				<div class="card overflow-x-auto">
+					@components.GamesOfUser(games)
+				</div>
+			</div>
 		</main>
 	}
 }
 
 templ GamesSignup(errorMsg string, isLoggedIn bool) {
 	@layouts.Base("Scorekeeper", isLoggedIn) {
-		<main class="container">
-			if errorMsg != "" {
-				<section class="container">
-					<p><i><mark>{ errorMsg }</mark></i></p>
-				</section>
-			}
-			<h1>Gamekeeper</h1>
-			<p>You are not signed up for the Gamekeeper yet.</p>
-			<p>Do you want to sign up?</p>
-			<a hx-post="/gamekeeper/signup" role="button" class="secondary">Yes, sign me up!</a>
+		<main class="flex-1 px-4 py-16">
+			<div class="max-w-4xl mx-auto">
+				if errorMsg != "" {
+					<div class="error-message">
+						{ errorMsg }
+					</div>
+				}
+				<h1 class="text-4xl md:text-5xl font-bold mb-8 glow-text bg-gradient-to-r from-accent-cyan to-accent-green bg-clip-text text-transparent">
+					Gamekeeper
+				</h1>
+				<div class="card">
+					<p class="text-gray-400 mb-2">You are not signed up for the Gamekeeper yet.</p>
+					<p class="text-gray-400 mb-6">Do you want to sign up?</p>
+					<a hx-post="/gamekeeper/signup" class="btn-primary">Yes, sign me up!</a>
+				</div>
+			</div>
 		</main>
 	}
 }

@@ -7,7 +7,7 @@ if ! [ -x "$(command -v psql)" ]; then
   exit 1
 fi
 
-if ! [ -x "$(command -v migrate)" ]; then
+if ! [ -x "$(command -v go tool migrate)" ]; then
   echo >&2 "Error: migrate is not installed."
   echo >&2 "Use:"
   echo >&2 "    go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest"
@@ -63,7 +63,7 @@ PGPASSWORD="${DB_PASSWORD}" psql -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}"
   PGPASSWORD="${DB_PASSWORD}" psql -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -c "CREATE DATABASE ${DB_NAME}"
 
 # Run migrations
-migrate -path migrations -database "${DATABASE_URL}" up
+go tool migrate -path migrations -database "${DATABASE_URL}" up
 
 # Seed with example data
 psql $DATABASE_URL -c "INSERT INTO matches(id, player_1, player_2, created_at) VALUES ('b13a16d8-c46e-4921-83f2-eec9675fce74', 'P1', 'P2', now()) ON CONFLICT DO NOTHING;"

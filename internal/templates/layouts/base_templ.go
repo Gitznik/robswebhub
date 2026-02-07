@@ -5,10 +5,8 @@ package layouts
 
 //lint:file-ignore SA4006 This context is only used if a nested component is present.
 
-import (
-	"github.com/a-h/templ"
-	templruntime "github.com/a-h/templ/runtime"
-)
+import "github.com/a-h/templ"
+import templruntime "github.com/a-h/templ/runtime"
 
 func Base(title string, isLoggedIn bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -31,35 +29,35 @@ func Base(title string, isLoggedIn bool) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\" data-theme=\"dark\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><script src=\"/static/js/htmx.min.js\"></script><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css\"><title>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><script src=\"/static/js/htmx.min.js\"></script><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap\" rel=\"stylesheet\"><link rel=\"stylesheet\" href=\"/static/css/styles.css\"><title>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layouts/base.templ`, Line: 11, Col: 17}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layouts/base.templ`, Line: 14, Col: 17}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " - RobsWebHub</title><link rel=\"icon\" type=\"image/x-icon\" href=\"/images/favicon.ico\"></head><body><nav class=\"container-fluid\"><ul><li><a href=\"/\" class=\"contrast\"><strong>RobsWebHub</strong></a></li></ul><ul><li>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " - RobsWebHub</title><link rel=\"icon\" type=\"image/x-icon\" href=\"/images/favicon.ico\"></head><body class=\"min-h-screen bg-dark-900 text-gray-100 font-mono grid-bg flex flex-col\"><nav class=\"border-b border-dark-700 px-4 md:px-8\"><div class=\"max-w-4xl mx-auto flex items-center justify-between h-16\"><a href=\"/\" class=\"text-lg font-bold bg-gradient-to-r from-accent-cyan to-accent-green bg-clip-text text-transparent no-underline\">RobsWebHub</a> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if isLoggedIn {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<a href=\"/logout\" role=\"button\" class=\"secondary\">Logout</a>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<a href=\"/logout\" class=\"btn text-sm\">Logout</a>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<a href=\"/login\" role=\"button\" class=\"secondary\">Login</a>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<a href=\"/login\" class=\"btn text-sm\">Login</a>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</li></ul></nav>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div></nav>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -67,7 +65,7 @@ func Base(title string, isLoggedIn bool) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<footer class=\"container-fluid\"><div><p>Author: <a href=\"mailto:dev@robswebhub.net\">Robert Offner</a></p></div><div><a href=\"https://github.com/Gitznik\"><img src=\"/images/github-mark-white.png\" alt=\"Github Icon\" style=\"width:42px;height:42px;\"></a> <a href=\"https://www.linkedin.com/in/robert-offner-065993191\"><img src=\"/images/LI-In-Bug.png\" alt=\"LinkedIn Icon\" style=\"width:50px;height:42px;\"></a></div></footer></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<footer class=\"mt-auto border-t border-dark-700 py-8 px-4\"><div class=\"max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4\"><p class=\"text-gray-500 text-sm\">Built by <a href=\"mailto:dev@robswebhub.net\" class=\"text-gray-400 hover:text-accent-cyan transition-colors\">Robert Offner</a></p><div class=\"flex items-center gap-4\"><a href=\"https://github.com/Gitznik\" class=\"w-8 h-8 rounded-lg bg-dark-800 border border-dark-700 p-1.5 hover:border-accent-cyan/50 hover:bg-dark-700 transition-all duration-300\" title=\"GitHub\"><img src=\"/images/github-mark-white.png\" alt=\"GitHub\" class=\"w-full h-full object-contain\"></a> <a href=\"https://www.linkedin.com/in/robert-offner-065993191\" class=\"w-8 h-8 rounded-lg bg-dark-800 border border-dark-700 p-1.5 hover:border-accent-cyan/50 hover:bg-dark-700 transition-all duration-300\" title=\"LinkedIn\"><img src=\"/images/LI-In-Bug.png\" alt=\"LinkedIn\" class=\"w-full h-full object-contain\"></a></div></div></footer></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

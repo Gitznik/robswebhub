@@ -6,6 +6,8 @@ jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
+    env:
+      TAILWIND_VERSION: v4.1.18
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -13,17 +15,24 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23'
+          go-version: '1.25'
 
       - name: Install tools
         run: |
           go install github.com/a-h/templ/cmd/templ@latest
           go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 
+      - name: Install Tailwind CSS
+        run: |
+          curl -sL -o /usr/local/bin/tailwindcss \
+            "https://github.com/tailwindlabs/tailwindcss/releases/download/${TAILWIND_VERSION}/tailwindcss-linux-x64"
+          chmod +x /usr/local/bin/tailwindcss
+
       - name: Generate code
         run: |
           templ generate
           sqlc generate
+          tailwindcss -i static/css/input.css -o static/css/styles.css --minify
 
       - name: Download dependencies
         run: go mod download
@@ -34,6 +43,8 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+    env:
+      TAILWIND_VERSION: v4.1.18
     services:
       postgres:
         image: postgres:16-alpine
@@ -56,7 +67,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23'
+          go-version: '1.25'
 
       - name: Install tools
         run: |
@@ -65,10 +76,17 @@ jobs:
           go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
           go install gotest.tools/gotestsum@latest
 
+      - name: Install Tailwind CSS
+        run: |
+          curl -sL -o /usr/local/bin/tailwindcss \
+            "https://github.com/tailwindlabs/tailwindcss/releases/download/${TAILWIND_VERSION}/tailwindcss-linux-x64"
+          chmod +x /usr/local/bin/tailwindcss
+
       - name: Generate code
         run: |
           templ generate
           sqlc generate
+          tailwindcss -i static/css/input.css -o static/css/styles.css --minify
 
       - name: Download dependencies
         run: go mod download
@@ -126,6 +144,8 @@ jobs:
   lints:
     name: Lints
     runs-on: ubuntu-latest
+    env:
+      TAILWIND_VERSION: v4.1.18
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -133,7 +153,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23'
+          go-version: '1.25'
 
       - name: Install tools
         run: |
@@ -141,16 +161,23 @@ jobs:
           go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
           go install golang.org/x/tools/cmd/goimports@latest
 
+      - name: Install Tailwind CSS
+        run: |
+          curl -sL -o /usr/local/bin/tailwindcss \
+            "https://github.com/tailwindlabs/tailwindcss/releases/download/${TAILWIND_VERSION}/tailwindcss-linux-x64"
+          chmod +x /usr/local/bin/tailwindcss
+
       - name: Generate code
         run: |
           templ generate
           sqlc generate
+          tailwindcss -i static/css/input.css -o static/css/styles.css --minify
 
       - name: Run go vet
         run: go vet ./...
 
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v9
         with:
           version: latest
           args: --timeout=5m

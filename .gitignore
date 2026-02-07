@@ -54,6 +54,7 @@ internal/database/querier.go
 
 # Static files that should be generated
 static/images/match_plots/*.png
+static/css/styles.css
 
 # Database
 *.db

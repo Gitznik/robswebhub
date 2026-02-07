@@ -3,57 +3,54 @@ package components
 import "github.com/google/uuid"
 
 templ SingleScoreForm(matchupID *uuid.UUID) {
-	<div id="score_entry_form">
-		<h3>Single Entry</h3>
+	<div id="score_entry_form" class="card mb-6">
+		<h3 class="text-lg font-bold text-gray-300 mb-4">Single Entry</h3>
 		<form id="single_result" action="/scores/single" method="post">
-			<div class="grid">
-				if matchupID != nil {
-					<input type="hidden" id="matchup_id" name="matchup_id" value={ matchupID.String() } required/>
-				} else {
-					<input type="hidden" id="matchup_id" name="matchup_id" placeholder="Matchup Id" required/>
-				}
-				<label for="winner_initials">
-					Winner Credentials
-					<input type="text" id="winner_initials" name="winner_initials" placeholder="Winner Initials" required/>
-				</label>
-				<label for="score">
-					Score, separated by ":"
-					<input type="text" id="score" name="score" placeholder="Score" required/>
-				</label>
-				<label for="played_at">
-					Date the match was played at
-					<input type="date" id="played_at" name="played_at" placeholder="dd.mm.yyyy" required/>
-				</label>
+			if matchupID != nil {
+				<input type="hidden" id="matchup_id" name="matchup_id" value={ matchupID.String() } required/>
+			} else {
+				<input type="hidden" id="matchup_id" name="matchup_id" placeholder="Matchup Id" required/>
+			}
+			<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+				<div>
+					<label for="winner_initials" class="label">Winner Credentials</label>
+					<input type="text" id="winner_initials" name="winner_initials" placeholder="Winner Initials" required class="input"/>
+				</div>
+				<div>
+					<label for="score" class="label">Score, separated by ":"</label>
+					<input type="text" id="score" name="score" placeholder="Score" required class="input"/>
+				</div>
+				<div>
+					<label for="played_at" class="label">Date played</label>
+					<input type="date" id="played_at" name="played_at" placeholder="dd.mm.yyyy" required class="input"/>
+				</div>
 			</div>
-			<div class="grid">
-				<button type="submit">Submit</button>
-			</div>
+			<button type="submit" class="btn-primary">Submit</button>
 		</form>
 	</div>
 }
 
 templ BatchScoreForm(matchupID *uuid.UUID) {
-	<div id="score_entry_form">
-		<h3>Batch Entry</h3>
+	<div id="score_entry_form" class="card mb-6">
+		<h3 class="text-lg font-bold text-gray-300 mb-4">Batch Entry</h3>
 		<form id="batch_upload" action="/scores/batch" method="post">
-			<div class="grid">
-				if matchupID != nil {
-					<input type="hidden" id="matchup_id" name="matchup_id" value={ matchupID.String() } required/>
-				} else {
-					<input type="hidden" id="matchup_id" name="matchup_id" placeholder="Matchup Id" required/>
-				}
-				<label for="raw_matches_list">
-					Raw matches list
-					<textarea
-						id="raw_matches_list"
-						name="raw_matches_list"
-						placeholder="Raw matches list, e.g. 2023-02-22 P1 2:1"
-						rows="5"
-						required
-					></textarea>
-				</label>
+			if matchupID != nil {
+				<input type="hidden" id="matchup_id" name="matchup_id" value={ matchupID.String() } required/>
+			} else {
+				<input type="hidden" id="matchup_id" name="matchup_id" placeholder="Matchup Id" required/>
+			}
+			<div class="mb-4">
+				<label for="raw_matches_list" class="label">Raw matches list</label>
+				<textarea
+					id="raw_matches_list"
+					name="raw_matches_list"
+					placeholder="Raw matches list, e.g. 2023-02-22 P1 2:1"
+					rows="5"
+					required
+					class="input"
+				></textarea>
 			</div>
-			<button type="submit">Submit Batch</button>
+			<button type="submit" class="btn-primary">Submit Batch</button>
 		</form>
 	</div>
 }
