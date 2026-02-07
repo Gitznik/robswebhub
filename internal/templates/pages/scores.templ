@@ -8,37 +8,46 @@ import (
 
 templ Scores(match *database.GetMatchRow, scores []database.GetMatchScoresRow, recentScores []database.GetRecentScoresRow, errorMsg string, isLoggedIn bool) {
 	@layouts.Base("Scorekeeper", isLoggedIn) {
-		<main class="container">
-			if errorMsg != "" {
-				<section class="container">
-					<p><i><mark>{ errorMsg }</mark></i></p>
-				</section>
-			}
-			<h1>Scorekeeper</h1>
-			<div>
-				<form action="/scores" method="get">
-					<fieldset role="group">
-						<input type="text" id="matchup_id" name="matchup_id" placeholder="Matchup Id" required/>
-						<button type="submit">Go</button>
-					</fieldset>
-				</form>
+		<main class="flex-1 px-4 py-16">
+			<div class="max-w-4xl mx-auto">
+				if errorMsg != "" {
+					<div class="error-message">
+						{ errorMsg }
+					</div>
+				}
+				<h1 class="text-4xl md:text-5xl font-bold mb-8 glow-text bg-gradient-to-r from-accent-cyan to-accent-green bg-clip-text text-transparent">
+					Scorekeeper
+				</h1>
+				<div class="mb-8">
+					<form action="/scores" method="get">
+						<div class="flex gap-3">
+							<input type="text" id="matchup_id" name="matchup_id" placeholder="Matchup Id" required class="input flex-1"/>
+							<button type="submit" class="btn-primary">Go</button>
+						</div>
+					</form>
+				</div>
+				if match == nil {
+					<div class="card text-gray-400">
+						You can find an example match <a href="/scores?matchup_id=b13a16d8-c46e-4921-83f2-eec9675fce74">here</a>.
+					</div>
+				} else {
+					<h2 class="text-2xl font-bold text-gray-300 mb-6 flex items-center gap-3">
+						<span class="text-accent-cyan">{ "//" }</span> Match { match.ID.String() }
+					</h2>
+					@scoreEntryForm(match.ID.String())
+					@matchResults(match, scores, recentScores)
+				}
 			</div>
-			if match == nil {
-				<div>You can find an example match <a href="/scores?matchup_id=b13a16d8-c46e-4921-83f2-eec9675fce74">here</a>.</div>
-			} else {
-				<h1>Match { match.ID.String() }</h1>
-				@scoreEntryForm(match.ID.String())
-				@matchResults(match, scores, recentScores)
-			}
 		</main>
 	}
 }
 
 templ scoreEntryForm(matchID string) {
-	<div>
-		<h2>Add Score</h2>
-		<div class="grid">
+	<div class="mb-8">
+		<h3 class="text-xl font-bold text-gray-300 mb-4">Add Score</h3>
+		<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
 			<button
+				class="btn"
 				hx-get="/scores/single-form"
 				hx-trigger="load,click"
 				hx-target="#score_entry_form"
@@ -48,6 +57,7 @@ templ scoreEntryForm(matchID string) {
 				Single Result Entry
 			</button>
 			<button
+				class="btn"
 				hx-get="/scores/batch-form"
 				hx-target="#score_entry_form"
 				hx-vals={ fmt.Sprintf(`{"matchup_id":"%s"}`, matchID) }
@@ -56,44 +66,42 @@ templ scoreEntryForm(matchID string) {
 				Multiple Result Entry
 			</button>
 		</div>
-		<p></p>
 		<div id="score_entry_form"></div>
 	</div>
 }
 
 templ matchResults(match *database.GetMatchRow, scores []database.GetMatchScoresRow, recentScores []database.GetRecentScoresRow) {
-	<h2>Scores</h2>
+	<h3 class="text-xl font-bold text-gray-300 mb-4">Scores</h3>
 	if len(scores) > 0 {
-		<figure align="center">
+		<div class="chart-container">
 			<iframe
 				src={ fmt.Sprintf("/scores/chart/%s", match.ID.String()) }
-				width="660"
-				height="500"
-				frameborder="0"
 			></iframe>
-		</figure>
+		</div>
 	}
-	<h3>Most recent results</h3>
-	<table role="grid">
-		<thead>
-			<tr>
-				<th scope="col">#</th>
-				<th scope="col">Winner</th>
-				<th scope="col">Winner Score</th>
-				<th scope="col">Loser Score</th>
-				<th scope="col">Played At</th>
-			</tr>
-		</thead>
-		<tbody>
-			for i, score := range recentScores {
+	<h4 class="text-lg font-bold text-gray-300 mb-4">Most recent results</h4>
+	<div class="card overflow-x-auto">
+		<table class="table">
+			<thead>
 				<tr>
-					<th scope="row">{ fmt.Sprintf("%d", i+1) }</th>
-					<td>{ score.Winner }</td>
-					<td>{ fmt.Sprintf("%d", score.WinnerScore) }</td>
-					<td>{ fmt.Sprintf("%d", score.LoserScore) }</td>
-					<td>{ score.PlayedAt.Format("2006-01-02") }</td>
+					<th>#</th>
+					<th>Winner</th>
+					<th>Winner Score</th>
+					<th>Loser Score</th>
+					<th>Played At</th>
 				</tr>
-			}
-		</tbody>
-	</table>
+			</thead>
+			<tbody>
+				for i, score := range recentScores {
+					<tr>
+						<td class="text-gray-500">{ fmt.Sprintf("%d", i+1) }</td>
+						<td>{ score.Winner }</td>
+						<td>{ fmt.Sprintf("%d", score.WinnerScore) }</td>
+						<td>{ fmt.Sprintf("%d", score.LoserScore) }</td>
+						<td>{ score.PlayedAt.Format("2006-01-02") }</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
 }

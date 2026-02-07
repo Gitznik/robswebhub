@@ -5,11 +5,10 @@ package components
 
 //lint:file-ignore SA4006 This context is only used if a nested component is present.
 
-import (
-	"github.com/a-h/templ"
-	templruntime "github.com/a-h/templ/runtime"
-	"github.com/google/uuid"
-)
+import "github.com/a-h/templ"
+import templruntime "github.com/a-h/templ/runtime"
+
+import "github.com/google/uuid"
 
 func SingleScoreForm(matchupID *uuid.UUID) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -32,7 +31,7 @@ func SingleScoreForm(matchupID *uuid.UUID) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"score_entry_form\"><h3>Single Entry</h3><form id=\"single_result\" action=\"/scores/single\" method=\"post\"><div class=\"grid\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"score_entry_form\" class=\"card mb-6\"><h3 class=\"text-lg font-bold text-gray-300 mb-4\">Single Entry</h3><form id=\"single_result\" action=\"/scores/single\" method=\"post\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -44,23 +43,23 @@ func SingleScoreForm(matchupID *uuid.UUID) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(matchupID.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/score_form.templ`, Line: 11, Col: 86}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/score_form.templ`, Line: 10, Col: 85}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" required> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" required>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<input type=\"hidden\" id=\"matchup_id\" name=\"matchup_id\" placeholder=\"Matchup Id\" required> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<input type=\"hidden\" id=\"matchup_id\" name=\"matchup_id\" placeholder=\"Matchup Id\" required>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<label for=\"winner_initials\">Winner Credentials <input type=\"text\" id=\"winner_initials\" name=\"winner_initials\" placeholder=\"Winner Initials\" required></label> <label for=\"score\">Score, separated by \":\" <input type=\"text\" id=\"score\" name=\"score\" placeholder=\"Score\" required></label> <label for=\"played_at\">Date the match was played at <input type=\"date\" id=\"played_at\" name=\"played_at\" placeholder=\"dd.mm.yyyy\" required></label></div><div class=\"grid\"><button type=\"submit\">Submit</button></div></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4\"><div><label for=\"winner_initials\" class=\"label\">Winner Credentials</label> <input type=\"text\" id=\"winner_initials\" name=\"winner_initials\" placeholder=\"Winner Initials\" required class=\"input\"></div><div><label for=\"score\" class=\"label\">Score, separated by \":\"</label> <input type=\"text\" id=\"score\" name=\"score\" placeholder=\"Score\" required class=\"input\"></div><div><label for=\"played_at\" class=\"label\">Date played</label> <input type=\"date\" id=\"played_at\" name=\"played_at\" placeholder=\"dd.mm.yyyy\" required class=\"input\"></div></div><button type=\"submit\" class=\"btn-primary\">Submit</button></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -89,7 +88,7 @@ func BatchScoreForm(matchupID *uuid.UUID) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div id=\"score_entry_form\"><h3>Batch Entry</h3><form id=\"batch_upload\" action=\"/scores/batch\" method=\"post\"><div class=\"grid\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div id=\"score_entry_form\" class=\"card mb-6\"><h3 class=\"text-lg font-bold text-gray-300 mb-4\">Batch Entry</h3><form id=\"batch_upload\" action=\"/scores/batch\" method=\"post\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -101,23 +100,23 @@ func BatchScoreForm(matchupID *uuid.UUID) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(matchupID.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/score_form.templ`, Line: 41, Col: 86}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/score_form.templ`, Line: 38, Col: 85}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" required> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" required>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<input type=\"hidden\" id=\"matchup_id\" name=\"matchup_id\" placeholder=\"Matchup Id\" required> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<input type=\"hidden\" id=\"matchup_id\" name=\"matchup_id\" placeholder=\"Matchup Id\" required>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<label for=\"raw_matches_list\">Raw matches list <textarea id=\"raw_matches_list\" name=\"raw_matches_list\" placeholder=\"Raw matches list, e.g. 2023-02-22 P1 2:1\" rows=\"5\" required></textarea></label></div><button type=\"submit\">Submit Batch</button></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"mb-4\"><label for=\"raw_matches_list\" class=\"label\">Raw matches list</label> <textarea id=\"raw_matches_list\" name=\"raw_matches_list\" placeholder=\"Raw matches list, e.g. 2023-02-22 P1 2:1\" rows=\"5\" required class=\"input\"></textarea></div><button type=\"submit\" class=\"btn-primary\">Submit Batch</button></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

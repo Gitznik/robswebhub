@@ -29,14 +29,22 @@ install:
 
 # Generate templ files
 templ:
-    templ generate
+    go tool templ generate
 
 # Generate sqlc code
 sqlc:
-    sqlc generate
+    go tool sqlc generate
 
-# Generate all code (templ and sqlc)
-generate: templ sqlc
+# Build Tailwind CSS
+css:
+    ./bin/tailwindcss -i static/css/input.css -o static/css/styles.css --minify
+
+# Watch and rebuild Tailwind CSS on changes
+css-watch:
+    ./bin/tailwindcss -i static/css/input.css -o static/css/styles.css --watch
+
+# Generate all code (templ, sqlc, and css)
+generate: templ sqlc css
 
 # Run database migrations
 migrate-up:
@@ -60,7 +68,7 @@ run: generate
 
 # Run application with hot reload (requires air)
 dev:
-    air
+    go tool air
 
 # Watch for changes and rebuild
 watch:
