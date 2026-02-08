@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gitznik/robswebhub/internal/models"
 	"github.com/gitznik/robswebhub/internal/testhelpers"
 	"github.com/google/uuid"
 )
@@ -248,6 +249,25 @@ func TestIntegration_ScoreForms(t *testing.T) {
 		testhelpers.AssertResponseCode(t, http.StatusOK, w.Code)
 		testhelpers.AssertResponseContains(t, w.Body.String(), "Batch Entry")
 		testhelpers.AssertResponseContains(t, w.Body.String(), "raw_matches_list")
+	})
+}
+
+func TestIntegration_CloudPage(t *testing.T) {
+	t.Parallel()
+
+	t.Run("GET /cloud returns cloud page with all services", func(t *testing.T) {
+		req, _ := http.NewRequest("GET", "/cloud", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		testhelpers.AssertResponseCode(t, http.StatusOK, w.Code)
+		testhelpers.AssertResponseContains(t, w.Body.String(), "RobsCloud")
+
+		for _, svc := range models.CloudServices() {
+			testhelpers.AssertResponseContains(t, w.Body.String(), svc.Name)
+			testhelpers.AssertResponseContains(t, w.Body.String(), svc.Description)
+			testhelpers.AssertResponseContains(t, w.Body.String(), svc.URL)
+		}
 	})
 }
 

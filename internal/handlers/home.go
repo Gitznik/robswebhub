@@ -8,6 +8,7 @@ import (
 	"github.com/gitznik/robswebhub/internal/config"
 	"github.com/gitznik/robswebhub/internal/database"
 	"github.com/gitznik/robswebhub/internal/middleware"
+	"github.com/gitznik/robswebhub/internal/models"
 	"github.com/gitznik/robswebhub/internal/templates/pages"
 )
 
@@ -27,6 +28,7 @@ func (h *Handler) RegisterRoute(rg *gin.RouterGroup) {
 	rg.GET("/", h.Home)
 	rg.HEAD("/", h.HomeHead)
 	rg.GET("/about", h.About)
+	rg.GET("/cloud", h.Cloud)
 }
 
 func (h *Handler) Home(c *gin.Context) {
@@ -44,6 +46,15 @@ func (h *Handler) HomeHead(c *gin.Context) {
 
 func (h *Handler) About(c *gin.Context) {
 	component := pages.About(c.GetBool(middleware.LoginKey))
+	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
+		_ = c.Error(errors.New("failed to render page"))
+		return
+	}
+}
+
+func (h *Handler) Cloud(c *gin.Context) {
+	services := models.CloudServices()
+	component := pages.Cloud(services, c.GetBool(middleware.LoginKey))
 	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
 		_ = c.Error(errors.New("failed to render page"))
 		return
