@@ -1,35 +1,49 @@
-version: '3.8'
-
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: robswebhub
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-robswebhub}
+      PGDATA: /var/lib/postgresql/data
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   app:
     build: .
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     environment:
       APP_ENVIRONMENT: production
+      APP_APPLICATION__HOST: 0.0.0.0
       APP_APPLICATION__PORT: 8080
-      DATABASE_URL: postgres://postgres:password@postgres:5432/robswebhub?sslmode=disable
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-robswebhub}?sslmode=disable
+      TELEMETRY_SENTRY_DSN: ${TELEMETRY_SENTRY_DSN:-}
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN}
+      AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID}
+      AUTH0_CLIENT_SECRET: ${AUTH0_CLIENT_SECRET}
+      AUTH0_CALLBACK_URL: ${AUTH0_CALLBACK_URL}
+      COOKIE_ENCRYPTION_KEY: ${COOKIE_ENCRYPTION_KEY}
+      COOKIE_AUTH_KEY: ${COOKIE_AUTH_KEY}
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
-      - ./static/images/match_plots:/root/static/images/match_plots
+      - match_plots:/root/static/images/match_plots
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+  match_plots:

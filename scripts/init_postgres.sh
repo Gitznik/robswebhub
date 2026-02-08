@@ -44,7 +44,7 @@ then
       -p "${DB_PORT}":5432 \
       -d \
       --name "postgres_$(date '+%s')" \
-      postgres:16-alpine -N 1000
+      postgres:18-alpine -N 1000
       # ^ Increased maximum number of connections for testing purposes
 fi
 

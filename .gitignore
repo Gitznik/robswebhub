@@ -63,8 +63,5 @@ static/css/styles.css
 # Logs
 *.log
 
-# Fly.io
-fly.toml.local
-
 # Docker
 docker-compose.override.yml
