@@ -354,6 +354,7 @@ func TestE2E_NavigationWorkflow(t *testing.T) {
 		{"Home", "/", "RobsWebHub"},
 		{"About", "/about", "Robert Offner"},
 		{"Scores", "/scores", "Scorekeeper"},
+		{"Cloud", "/cloud", "RobsCloud"},
 		{"Back to Home from Scores", "/", "Projects"},
 	}
 
