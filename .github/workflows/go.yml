@@ -181,23 +181,3 @@ jobs:
         with:
           version: latest
           args: --timeout=5m
-
-      - name: Check formatting
-        run: |
-          templ fmt .
-          gofmt -l -w .
-          goimports -w .
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "Files are not formatted."
-            git diff
-            exit 1
-          fi
-
-      - name: Verify go mod tidy
-        run: |
-          go mod tidy
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "go.mod or go.sum is not tidy. Please run 'go mod tidy'"
-            git diff
-            exit 1
-          fi

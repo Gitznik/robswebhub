@@ -69,7 +69,9 @@ func SetupTestDB() *TestDB {
 	if err := mig.Up(); err != nil && err != migrate.ErrNoChange {
 		log.Fatalf("Failed to run migrations: %v", err)
 	}
-	mig.Close()
+	if sErr, dErr := mig.Close(); sErr != nil || dErr != nil {
+		log.Fatalf("Failed closing the migration resources. Source: %v, Database: %v", sErr, dErr)
+	}
 
 	queries := database.New(pool)
 

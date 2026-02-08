@@ -33,7 +33,7 @@ func (h *Handler) Home(c *gin.Context) {
 	redirectError := c.Query("error")
 	component := pages.Home(redirectError, c.GetBool(middleware.LoginKey))
 	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
-		_ = c.Error(errors.New("Failed to render page"))
+		_ = c.Error(errors.New("failed to render page"))
 		return
 	}
 }
@@ -45,7 +45,7 @@ func (h *Handler) HomeHead(c *gin.Context) {
 func (h *Handler) About(c *gin.Context) {
 	component := pages.About(c.GetBool(middleware.LoginKey))
 	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
-		_ = c.Error(errors.New("Failed to render page"))
+		_ = c.Error(errors.New("failed to render page"))
 		return
 	}
 }

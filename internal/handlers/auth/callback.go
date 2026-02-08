@@ -25,7 +25,7 @@ func (h *Handler) Callback(c *gin.Context) {
 
 	idToken, err := h.authenticator.VerifyIDToken(c.Request.Context(), token)
 	if err != nil {
-		_ = c.Error(errors.New("Failed to verify ID Token."))
+		_ = c.Error(errors.New("failed to verify ID Token"))
 		return
 	}
 

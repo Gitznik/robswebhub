@@ -67,28 +67,28 @@ func Load() (*Config, error) {
 	// Bind specific environment variables that don't follow the APP_ prefix pattern
 	// or have different naming conventions
 	if err := viper.BindEnv("database.connection_string", "DATABASE_URL"); err != nil {
-		return nil, fmt.Errorf("Failed to bind DATABASE_URL")
+		return nil, fmt.Errorf("failed to bind DATABASE_URL")
 	}
 	if err := viper.BindEnv("telemetry.sentry_dsn", "TELEMETRY_SENTRY_DSN"); err != nil {
-		return nil, fmt.Errorf("Failed to bind TELEMETRY_SENTRY_DSN")
+		return nil, fmt.Errorf("failed to bind TELEMETRY_SENTRY_DSN")
 	}
 	if err := viper.BindEnv("auth.auth_0_domain", "AUTH0_DOMAIN"); err != nil {
-		return nil, fmt.Errorf("Failed to bind AUTH0_DOMAIN")
+		return nil, fmt.Errorf("failed to bind AUTH0_DOMAIN")
 	}
 	if err := viper.BindEnv("auth.auth_0_client_id", "AUTH0_CLIENT_ID"); err != nil {
-		return nil, fmt.Errorf("Failed to bind AUTH0_CLIENT_ID")
+		return nil, fmt.Errorf("failed to bind AUTH0_CLIENT_ID")
 	}
 	if err := viper.BindEnv("auth.auth_0_client_secret", "AUTH0_CLIENT_SECRET"); err != nil {
-		return nil, fmt.Errorf("Failed to bind AUTH0_CLIENT_SECRET")
+		return nil, fmt.Errorf("failed to bind AUTH0_CLIENT_SECRET")
 	}
 	if err := viper.BindEnv("auth.auth_0_callback_url", "AUTH0_CALLBACK_URL"); err != nil {
-		return nil, fmt.Errorf("Failed to bind AUTH0_CALLBACK_URL")
+		return nil, fmt.Errorf("failed to bind AUTH0_CALLBACK_URL")
 	}
 	if err := viper.BindEnv("auth.cookie_encryption_key", "COOKIE_ENCRYPTION_KEY"); err != nil {
-		return nil, fmt.Errorf("Failed to bind COOKIE_ENCRYPTION_KEY")
+		return nil, fmt.Errorf("failed to bind COOKIE_ENCRYPTION_KEY")
 	}
 	if err := viper.BindEnv("auth.cookie_auth_key", "COOKIE_AUTH_KEY"); err != nil {
-		return nil, fmt.Errorf("Failed to bind COOKIE_AUTH_KEY")
+		return nil, fmt.Errorf("failed to bind COOKIE_AUTH_KEY")
 	}
 
 	var config Config

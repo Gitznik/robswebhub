@@ -160,9 +160,10 @@ func TestE2E_CompleteScoreWorkflow(t *testing.T) {
 			aliceWins := 0
 			bobWins := 0
 			for _, score := range scores {
-				if score.Winner == "Alice" {
+				switch score.Winner {
+				case "Alice":
 					aliceWins++
-				} else if score.Winner == "Bob" {
+				default:
 					bobWins++
 				}
 			}

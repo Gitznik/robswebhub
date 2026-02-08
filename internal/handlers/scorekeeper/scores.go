@@ -47,7 +47,7 @@ func (h *Handler) ScoresIndex(c *gin.Context) {
 		if err != nil {
 			component := pages.Scores(nil, nil, nil, "Invalid matchup ID", c.GetBool(middleware.LoginKey))
 			if err := component.Render(c.Request.Context(), c.Writer); err != nil {
-				_ = c.Error(errors.New("Failed to render page"))
+				_ = c.Error(errors.New("failed to render page"))
 			}
 			return
 		}
@@ -57,7 +57,7 @@ func (h *Handler) ScoresIndex(c *gin.Context) {
 		if err != nil {
 			component := pages.Scores(nil, nil, nil, "Match not found", c.GetBool(middleware.LoginKey))
 			if err := component.Render(c.Request.Context(), c.Writer); err != nil {
-				_ = c.Error(errors.New("Failed to render page"))
+				_ = c.Error(errors.New("failed to render page"))
 			}
 			return
 		}
@@ -82,7 +82,7 @@ func (h *Handler) ScoresIndex(c *gin.Context) {
 
 	component := pages.Scores(match, scores, recentScores, redirectError, c.GetBool(middleware.LoginKey))
 	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
-		_ = c.Error(errors.New("Failed to render page"))
+		_ = c.Error(errors.New("failed to render page"))
 		return
 	}
 }
@@ -94,14 +94,14 @@ func (h *Handler) ScoresSingle(c *gin.Context) {
 		return
 	}
 
-	match_id, err := uuid.Parse(input.MatchupID)
+	matchID, err := uuid.Parse(input.MatchupID)
 	if err != nil {
 		c.Redirect(http.StatusSeeOther, fmt.Sprintf("/scores?matchup_id=%s&error=%s", input.MatchupID, err.Error()))
 		return
 	}
 
 	// Validate match exists and player is in match
-	match, err := h.queries.GetMatch(c.Request.Context(), match_id)
+	match, err := h.queries.GetMatch(c.Request.Context(), matchID)
 	if err != nil {
 		c.Redirect(http.StatusSeeOther, "/scores?error=Match not found")
 		return
@@ -145,7 +145,7 @@ func (h *Handler) ScoresSingle(c *gin.Context) {
 
 	// Save score
 	err = h.queries.CreateScore(c.Request.Context(), database.CreateScoreParams{
-		MatchID:     match_id,
+		MatchID:     matchID,
 		GameID:      uuid.New(),
 		Winner:      input.WinnerInitials,
 		WinnerScore: int16(winnerScore),
@@ -153,7 +153,6 @@ func (h *Handler) ScoresSingle(c *gin.Context) {
 		CreatedAt:   time.Now(),
 		PlayedAt:    playedAt,
 	})
-
 	if err != nil {
 		c.Redirect(http.StatusSeeOther, fmt.Sprintf("/scores?matchup_id=%s&error=%s", input.MatchupID, err.Error()))
 		return
@@ -262,7 +261,7 @@ func (h *Handler) SingleScoreForm(c *gin.Context) {
 
 	component := components.SingleScoreForm(matchupID)
 	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
-		_ = c.Error(errors.New("Failed to render form"))
+		_ = c.Error(errors.New("failed to render form"))
 		return
 	}
 }
@@ -280,7 +279,7 @@ func (h *Handler) BatchScoreForm(c *gin.Context) {
 
 	component := components.BatchScoreForm(matchupID)
 	if err := component.Render(c.Request.Context(), c.Writer); err != nil {
-		_ = c.Error(errors.New("Failed to render form"))
+		_ = c.Error(errors.New("failed to render form"))
 		return
 	}
 }
@@ -307,7 +306,7 @@ func (h *Handler) ScoresChart(c *gin.Context) {
 		PlayedAt: cutoffDate,
 	})
 	if err != nil {
-		_ = c.Error(errors.New("Failed to get scores"))
+		_ = c.Error(errors.New("failed to get scores"))
 		return
 	}
 
@@ -361,6 +360,6 @@ func (h *Handler) ScoresChart(c *gin.Context) {
 		SetSeriesOptions(charts.WithLineChartOpts(opts.LineChart{Smooth: true}))
 
 	if err := line.Render(c.Writer); err != nil {
-		_ = c.Error(errors.New("Failed to render graph"))
+		_ = c.Error(errors.New("failed to render graph"))
 	}
 }

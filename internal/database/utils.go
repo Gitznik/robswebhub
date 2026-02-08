@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -49,8 +50,11 @@ func RunMigrations(connectionString string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create migration instance: %w", err)
 	}
-	defer m.Close()
-
+	defer func() {
+		if sErr, dErr := m.Close(); sErr != nil || dErr != nil {
+			log.Fatalf("Failed closing the migration resources. Source: %v, Database: %v", sErr, dErr)
+		}
+	}()
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
