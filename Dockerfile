@@ -2,7 +2,7 @@
 FROM golang:1.25-alpine AS builder
 
 # Install build dependencies
-RUN apk add --no-cache git make curl
+RUN apk add --no-cache git make curl libstdc++
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ ARG TAILWIND_VERSION=v4.1.18
 RUN ARCH=$(uname -m) && \
   case "$ARCH" in x86_64) ARCH="x64" ;; aarch64) ARCH="arm64" ;; esac && \
   curl -sL -o /usr/local/bin/tailwindcss \
-  "https://github.com/tailwindlabs/tailwindcss/releases/download/${TAILWIND_VERSION}/tailwindcss-linux-${ARCH}" && \
+  "https://github.com/tailwindlabs/tailwindcss/releases/download/${TAILWIND_VERSION}/tailwindcss-linux-${ARCH}-musl" && \
   chmod +x /usr/local/bin/tailwindcss
 
 # Copy source code
