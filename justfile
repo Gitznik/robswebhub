@@ -11,6 +11,14 @@ setup:
 setup-env:
     ./scripts/init_postgres.sh
 
+# Generate new session authentication and encryption keys
+generate-session-keys:
+    @echo "Session Auth Key (64 bytes):"
+    @openssl rand -hex 64
+    @echo ""
+    @echo "Session Encryption Key (32 bytes):"
+    @openssl rand -hex 32
+
 # Stop and remove PostgreSQL container
 teardown-env:
     #!/usr/bin/env bash
@@ -26,6 +34,7 @@ install:
     go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
     go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
     go install github.com/cosmtrek/air@latest
+
 
 # Generate templ files
 templ:
@@ -222,26 +231,6 @@ verify-deps:
 # Run the application in production mode
 prod:
     APP_ENVIRONMENT=production just run
-
-# Deploy to Fly.io
-deploy:
-    fly deploy
-
-# SSH into Fly.io app
-fly-ssh:
-    fly ssh console
-
-# View Fly.io logs
-fly-logs:
-    fly logs
-
-# Open Fly.io app in browser
-fly-open:
-    fly open
-
-# Show Fly.io app status
-fly-status:
-    fly status
 
 # Create a full backup of the database
 backup-db timestamp=`date +%Y%m%d_%H%M%S`:

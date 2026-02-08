@@ -21,7 +21,7 @@ just dev
 ## Tech Stack
 
 - **Backend**: Go with Gin web framework
-- **Database**: PostgreSQL with sqlc for type-safe queries
+- **Database**: PostgreSQL 18 with sqlc for type-safe queries
 - **Migrations**: golang-migrate
 - **Templates**: templ for type-safe HTML templates
 - **Frontend**: HTMX for dynamic interactions, Pico CSS for styling
@@ -168,11 +168,9 @@ just profile-mem            # Profile memory usage
 just outdated               # Check for outdated dependencies
 just audit                  # Run security audit
 
-# Docker & Deployment
+# Docker
 just docker                 # Build and run Docker container
 just compose-logs          # View docker-compose logs
-just deploy                # Deploy to Fly.io
-just fly-ssh               # SSH into Fly.io app
 ```
 
 For a complete list of commands with descriptions:
@@ -246,15 +244,19 @@ just docker-run
 just docker
 ```
 
-### Fly.io Deployment
+### Coolify Deployment
 
-```bash
-# Install flyctl
-curl -L https://fly.io/install.sh | sh
+This application is deployed via [Coolify](https://coolify.io/) using the `docker-compose.yml` file in the repository root.
 
-# Deploy
-fly deploy
-```
+1. Add the GitHub repository as a new project in Coolify
+2. Select "Docker Compose" as the deployment method
+3. Configure the required environment variables in Coolify's UI:
+   - `POSTGRES_PASSWORD` - PostgreSQL password
+   - `AUTH0_DOMAIN`, `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, `AUTH0_CALLBACK_URL` - Auth0 settings
+   - `COOKIE_ENCRYPTION_KEY`, `COOKIE_AUTH_KEY` - Session cookie keys (generate with `just generate-session-keys`)
+   - `TELEMETRY_SENTRY_DSN` - Sentry DSN (optional)
+4. Deploy - Coolify will build the image and start both the app and PostgreSQL
+5. Configure your domain and SSL in Coolify
 
 ## API Routes
 
