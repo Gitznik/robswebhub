@@ -13,6 +13,7 @@ import (
 	authhandler "github.com/gitznik/robswebhub/internal/handlers/auth"
 	gameshandler "github.com/gitznik/robswebhub/internal/handlers/games"
 	scorehandler "github.com/gitznik/robswebhub/internal/handlers/scorekeeper"
+	wellknownhandler "github.com/gitznik/robswebhub/internal/handlers/wellknown"
 	"github.com/gitznik/robswebhub/internal/middleware"
 	"github.com/gitznik/robswebhub/internal/sessions"
 )
@@ -51,6 +52,10 @@ func SetupRouter(cfg *config.Config, queries *database.Queries, authenticator *a
 	gkh := gameshandler.New(queries)
 	gamekeeper := router.Group("/gamekeeper")
 	gkh.RegisterRoute(gamekeeper)
+
+	wkh := wellknownhandler.New()
+	wellknown := router.Group("/.well-known")
+	wkh.RegisterRoute(wellknown)
 
 	return router
 }
