@@ -54,5 +54,11 @@ func CloudServices() []CloudService {
 			URL:         "https://paperless.robswebhub.net",
 			IconURL:     "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/paperless-ngx.svg",
 		},
+		{
+			Name:        "Miniflux",
+			Description: "Minimalist and opinionated feed reader",
+			URL:         "https://miniflux.robswebhub.net",
+			IconURL:     "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/miniflux.svg",
+		},
 	}
 }
