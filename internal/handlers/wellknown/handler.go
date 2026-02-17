@@ -20,6 +20,13 @@ func New() *Handler {
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(target)
+
+	defaultDirector := proxy.Director
+	proxy.Director = func(req *http.Request) {
+		defaultDirector(req)
+		req.Host = target.Host
+	}
+
 	proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
 		writer.Header().Set("Content-Type", "application/json")
 		writer.WriteHeader(http.StatusBadGateway)
