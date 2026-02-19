@@ -60,5 +60,11 @@ func CloudServices() []CloudService {
 			URL:         "https://miniflux.robswebhub.net",
 			IconURL:     "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/miniflux.svg",
 		},
+		{
+			Name:        "Matrix",
+			Description: "Matrix chat with bridges to WhatsApp, Signal, and Telegram",
+			URL:         "https://element.robswebhub.net",
+			IconURL:     "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/matrix.svg",
+		},
 	}
 }
